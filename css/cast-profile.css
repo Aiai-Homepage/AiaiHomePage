@@ -402,9 +402,18 @@
     }
     
     .gallery-container {
-        height: 300px;
+        height: 500px;
     }
     
+    .gallery-slide {
+        padding: 10px;
+    }
+    
+    .gallery-slide img {
+        max-width: calc(100% - 20px);
+        max-height: calc(100% - 20px);
+    }
+
     .other-cast-grid {
         grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
         gap: 1rem;
@@ -431,6 +440,19 @@
     .other-cast-avatar {
         width: 60px;
         height: 60px;
+    }
+    
+    .gallery-container {
+        height: 450px;
+    }
+    
+    .gallery-slide {
+        padding: 8px;
+    }
+    
+    .gallery-slide img {
+        max-width: calc(100% - 16px);
+        max-height: calc(100% - 16px);
     }
 }
 
