@@ -47,14 +47,14 @@ class ParticleSystem {
     animate() {
         this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
         
-        // 背景グラデーション
+        // 背景グラデーション（黒×ピンクテーマに合わせた暗色ベース）
         const gradient = this.ctx.createRadialGradient(
             this.canvas.width / 2, this.canvas.height / 2, 0,
             this.canvas.width / 2, this.canvas.height / 2, this.canvas.width / 2
         );
-        gradient.addColorStop(0, 'rgba(26, 10, 26, 0.8)');
-        gradient.addColorStop(0.5, 'rgba(10, 10, 10, 0.9)');
-        gradient.addColorStop(1, 'rgba(0, 0, 0, 1)');
+        gradient.addColorStop(0, 'rgba(18, 8, 18, 0.85)');
+        gradient.addColorStop(0.5, 'rgba(10, 8, 12, 0.92)');
+        gradient.addColorStop(1, 'rgba(6, 4, 8, 1)');
         
         this.ctx.fillStyle = gradient;
         this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
@@ -87,7 +87,7 @@ class ParticleSystem {
                 
                 if (distance < 150) {
                     const opacity = 1 - (distance / 150);
-                    this.ctx.strokeStyle = `rgba(255, 20, 147, ${opacity * 0.3})`;
+                    this.ctx.strokeStyle = `rgba(212, 96, 122, ${opacity * 0.25})`;
                     this.ctx.lineWidth = 1;
                     this.ctx.beginPath();
                     this.ctx.moveTo(p1.x, p1.y);
@@ -122,11 +122,11 @@ class Particle {
     
     getRandomColor() {
         const colors = [
-            { r: 255, g: 20, b: 147 },   // ネオンピンク
-            { r: 255, g: 105, b: 180 },  // ホットピンク
-            { r: 221, g: 160, b: 221 },  // プラム
+            { r: 212, g: 96,  b: 122 },  // メインピンク
+            { r: 232, g: 132, b: 154 },  // ライトピンク
+            { r: 240, g: 176, b: 192 },  // ペールピンク
             { r: 255, g: 255, b: 255 },  // 白
-            { r: 138, g: 43, b: 226 }    // ブルーバイオレット
+            { r: 196, g: 64,  b: 100 },  // ディープピンク
         ];
         
         return colors[Math.floor(Math.random() * colors.length)];

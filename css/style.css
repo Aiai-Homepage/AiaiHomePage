@@ -14,7 +14,7 @@ html {
 
 body {
     font-family: 'Noto Serif JP', serif;
-    background: #0a0a0a;
+    background: #0a080c;
     color: #ffffff;
     line-height: 1.6;
     overflow-x: hidden;
@@ -26,14 +26,21 @@ body {
    ========================================================================== */
 
 :root {
-    --neon-pink: #ff1493;
-    --neon-pink-glow: rgba(255, 20, 147, 0.8);
-    --neon-pink-soft: rgba(255, 20, 147, 0.3);
-    --dark-bg: #0a0a0a;
-    --dark-secondary: #1a1a1a;
-    --dark-accent: #2a2a2a;
-    --gradient-primary: linear-gradient(135deg, #ff1493, #ff69b4, #dda0dd);
-    --gradient-dark: linear-gradient(135deg, #0a0a0a, #1a1a1a, #2a2a2a);
+    /* 新デザイン用ピンク変数 */
+    --pink:           #d4607a;
+    --pink-light:     #e8849a;
+    --pink-pale:      #f0b0c0;
+    --pink-glow:      rgba(212, 96, 122, 0.4);
+
+    /* 旧変数との互換性維持（既存ページで参照されている場合用） */
+    --neon-pink:          #d4607a;
+    --neon-pink-glow:     rgba(212, 96, 122, 0.4);
+    --neon-pink-soft:     rgba(212, 96, 122, 0.3);
+    --dark-bg:        #0a080c;
+    --dark-secondary: #120e16;
+    --dark-accent:    #1a1020;
+    --gradient-primary: linear-gradient(135deg, #d4607a, #e8849a, #f0b0c0);
+    --gradient-dark:    linear-gradient(135deg, #0a080c, #120e16, #1a1020);
 }
 
 /* ==========================================================================

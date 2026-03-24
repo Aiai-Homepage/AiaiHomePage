@@ -4,303 +4,726 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>待合室藍愛 | 君と私の交わることのない一夜の物語</title>
-    
-    <!-- Google Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&family=Noto+Serif+JP:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    
-    <!-- Font Awesome -->
+    <link href="https://fonts.googleapis.com/css2?family=Shippori+Mincho:wght@400;500;600;700&family=Zen+Old+Mincho:wght@400;700;900&family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css">
-    
-    <!-- Custom CSS -->
-    <link rel="stylesheet" href="css/style.css">
-    <link rel="stylesheet" href="css/animations.css">
+    <style>
+        :root {
+            --ink:        #0a080c;
+            --ink-soft:   #120e16;
+            --paper:      #f5f0e8;
+            --pink:       #d4607a;
+            --pink-light: #e8849a;
+            --pink-pale:  #f0b0c0;
+            --pink-glow:  rgba(212, 96, 122, 0.18);
+            --pink-faint: rgba(212, 96, 122, 0.07);
+            --divider:    rgba(245, 240, 232, 0.07);
+        }
+
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+        html { scroll-behavior: smooth; }
+
+        body {
+            background-color: var(--ink);
+            color: var(--paper);
+            font-family: 'Shippori Mincho', serif;
+            overflow-x: hidden;
+        }
+
+        /* noise texture */
+        body::before {
+            content: '';
+            position: fixed; inset: 0; z-index: 0; pointer-events: none;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='300' height='300' filter='url(%23n)' opacity='0.035'/%3E%3C/svg%3E");
+        }
+
+        /* ambient glows */
+        .ambient { position: fixed; border-radius: 50%; filter: blur(130px); pointer-events: none; z-index: 0; }
+        .ambient-1 {
+            width: 700px; height: 700px;
+            background: radial-gradient(circle, rgba(212,96,122,0.14) 0%, transparent 65%);
+            top: -250px; right: -150px;
+            animation: drift1 20s ease-in-out infinite;
+        }
+        .ambient-2 {
+            width: 500px; height: 500px;
+            background: radial-gradient(circle, rgba(212,96,122,0.09) 0%, transparent 65%);
+            bottom: 10vh; left: -100px;
+            animation: drift2 26s ease-in-out infinite;
+        }
+        .ambient-3 {
+            width: 400px; height: 400px;
+            background: radial-gradient(circle, rgba(212,96,122,0.06) 0%, transparent 65%);
+            top: 50vh; left: 40%;
+            animation: drift3 32s ease-in-out infinite;
+        }
+        @keyframes drift1 { 0%,100%{transform:translate(0,0)} 50%{transform:translate(-50px,40px)} }
+        @keyframes drift2 { 0%,100%{transform:translate(0,0)} 50%{transform:translate(40px,-50px)} }
+        @keyframes drift3 { 0%,100%{transform:translate(0,0)} 33%{transform:translate(30px,30px)} 66%{transform:translate(-30px,10px)} }
+
+        /* navigation */
+        nav {
+            position: fixed; top: 0; left: 0; right: 0; z-index: 200;
+            display: flex; align-items: center; justify-content: space-between;
+            padding: 22px 48px;
+            background: linear-gradient(to bottom, rgba(10,8,12,0.92) 0%, transparent 100%);
+        }
+        .nav-logo {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 1.05rem; font-style: italic;
+            color: var(--pink-light); letter-spacing: 0.12em;
+            text-decoration: none;
+        }
+        .nav-x {
+            display: flex; align-items: center; gap: 8px;
+            color: var(--paper); opacity: 0.45;
+            text-decoration: none; font-size: 0.7rem; letter-spacing: 0.2em;
+            text-transform: uppercase; transition: opacity 0.3s;
+        }
+        .nav-x:hover { opacity: 1; }
+
+        /* HERO */
+        .hero {
+            position: relative; z-index: 1;
+            min-height: 100vh;
+            display: flex; flex-direction: column;
+            align-items: center; justify-content: center;
+            text-align: center;
+            padding: 0 24px;
+            overflow: hidden;
+        }
+        .hero::before, .hero::after {
+            content: '';
+            position: absolute; left: 50%; transform: translateX(-50%);
+            width: 1px; background: linear-gradient(to bottom, transparent, var(--pink), transparent);
+            pointer-events: none;
+        }
+        .hero::before { top: 0; height: 18vh; }
+        .hero::after  { bottom: 0; height: 18vh; }
+
+        .hero-eyebrow {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 0.68rem; letter-spacing: 0.45em;
+            text-transform: uppercase; color: var(--pink);
+            opacity: 0.8; margin-bottom: 28px;
+            display: flex; align-items: center; gap: 18px;
+            animation: fadeUp 1s 0.2s both;
+        }
+        .hero-eyebrow span { display: block; width: 36px; height: 1px; background: var(--pink); opacity: 0.6; }
+
+        .hero-title {
+            font-family: 'Zen Old Mincho', serif;
+            font-size: clamp(3.2rem, 8vw, 7.5rem);
+            font-weight: 900; line-height: 1.05;
+            letter-spacing: 0.05em;
+            margin-bottom: 20px;
+            animation: fadeUp 1s 0.4s both;
+        }
+        .hero-title-glow {
+            background: linear-gradient(135deg, var(--paper) 40%, var(--pink-pale) 100%);
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .hero-subtitle {
+            font-family: 'Shippori Mincho', serif;
+            font-size: clamp(0.8rem, 1.5vw, 1rem);
+            color: var(--paper); opacity: 0.45;
+            letter-spacing: 0.22em;
+            margin-bottom: 60px;
+            animation: fadeUp 1s 0.6s both;
+        }
+
+        .hero-scroll {
+            position: absolute; bottom: 36px; left: 50%; transform: translateX(-50%);
+            display: flex; flex-direction: column; align-items: center; gap: 10px;
+            color: var(--paper); opacity: 0.3;
+            font-size: 0.6rem; letter-spacing: 0.3em; text-transform: uppercase;
+            animation: fadeUp 1s 1.2s both;
+        }
+        .hero-scroll i { animation: bounce 2s ease-in-out infinite; }
+        @keyframes bounce { 0%,100%{transform:translateY(0)} 50%{transform:translateY(6px)} }
+        @keyframes fadeUp { from{opacity:0;transform:translateY(24px)} to{opacity:1;transform:translateY(0)} }
+
+        /* SECTION COMMON */
+        section { position: relative; z-index: 1; }
+        .section-inner { max-width: 1100px; margin: 0 auto; padding: 100px 48px; }
+        .section-label {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 0.65rem; letter-spacing: 0.45em;
+            text-transform: uppercase; color: var(--pink);
+            display: flex; align-items: center; gap: 16px;
+            margin-bottom: 52px;
+        }
+        .section-label::before { content: ''; display: block; width: 36px; height: 1px; background: var(--pink); }
+        .section-label::after  { content: ''; display: block; flex: 1; height: 1px; background: linear-gradient(to right, rgba(212,96,122,0.3), transparent); }
+
+        /* EVENT DETAILS */
+        .details-section { border-top: 1px solid var(--divider); }
+        .details-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 2px;
+        }
+        .detail-item {
+            padding: 32px 28px;
+            border: 1px solid var(--divider);
+            background: var(--pink-faint);
+            position: relative; overflow: hidden;
+            transition: border-color 0.4s, background 0.4s;
+        }
+        .detail-item::before {
+            content: ''; position: absolute; top: 0; left: 0;
+            width: 2px; height: 0; background: var(--pink);
+            transition: height 0.4s ease;
+        }
+        .detail-item:hover { border-color: rgba(212,96,122,0.3); background: rgba(212,96,122,0.1); }
+        .detail-item:hover::before { height: 100%; }
+        .detail-icon { font-size: 0.9rem; color: var(--pink); opacity: 0.7; margin-bottom: 14px; }
+        .detail-key  { font-size: 0.6rem; letter-spacing: 0.25em; text-transform: uppercase; color: var(--pink); opacity: 0.6; margin-bottom: 8px; }
+        .detail-val  { font-family: 'Shippori Mincho', serif; font-size: 0.9rem; line-height: 1.7; color: var(--paper); opacity: 0.8; }
+        .detail-val a { color: var(--pink-light); text-decoration: none; transition: opacity 0.2s; }
+        .detail-val a:hover { opacity: 0.7; }
+
+        /* CAST GRID */
+        .cast-section { border-top: 1px solid var(--divider); }
+        .cast-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+            gap: 3px;
+        }
+        .cast-card-link { text-decoration: none; color: inherit; display: block; }
+        .cast-card {
+            position: relative; overflow: hidden;
+            background: var(--ink-soft);
+            border: 1px solid var(--divider);
+            transition: border-color 0.4s, box-shadow 0.4s;
+            aspect-ratio: 2/3; cursor: pointer;
+        }
+        .cast-card:hover {
+            border-color: rgba(212,96,122,0.5);
+            box-shadow: 0 0 40px rgba(212,96,122,0.12);
+        }
+        .cast-img-wrap { position: absolute; inset: 0; }
+        .cast-img-wrap img {
+            width: 100%; height: 100%; object-fit: contain;
+            transition: transform 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+        }
+        .cast-card:hover .cast-img-wrap img { transform: scale(1.05); }
+        /* pink shimmer */
+        .cast-card::before {
+            content: ''; position: absolute; inset: 0; z-index: 1;
+            background: linear-gradient(160deg, rgba(212,96,122,0.25) 0%, transparent 55%);
+            opacity: 0; transition: opacity 0.4s;
+        }
+        .cast-card:hover::before { opacity: 1; }
+        /* bottom fade always present */
+        .cast-card::after {
+            content: ''; position: absolute; inset: 0; z-index: 1;
+            background: linear-gradient(to top, rgba(10,8,12,0.85) 0%, rgba(10,8,12,0.2) 35%, transparent 60%);
+        }
+        .cast-card-overlay {
+            position: absolute; bottom: 0; left: 0; right: 0; z-index: 2;
+            padding: 48px 22px 24px;
+        }
+        .cast-card-name {
+            font-family: 'Zen Old Mincho', serif;
+            font-size: 1.25rem; font-weight: 700;
+            color: var(--paper); letter-spacing: 0.05em; margin-bottom: 5px;
+            text-shadow: 0 2px 12px rgba(0,0,0,0.6);
+        }
+        .cast-card:hover .cast-card-name { color: var(--pink-pale); }
+        .cast-card-role {
+            font-size: 0.62rem; letter-spacing: 0.28em;
+            color: var(--pink-light); opacity: 0.8;
+        }
+        .cast-card-num {
+            position: absolute; top: 16px; right: 18px; z-index: 3;
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 0.7rem; letter-spacing: 0.2em;
+            color: var(--paper); opacity: 0.2;
+        }
+
+        /* ABOUT */
+        .about-section { border-top: 1px solid var(--divider); }
+        .about-layout { display: grid; grid-template-columns: 1fr 2fr; gap: 80px; align-items: start; }
+        .about-deco-title {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: clamp(3rem, 5vw, 5rem);
+            font-weight: 300; font-style: italic;
+            line-height: 1; color: var(--pink); opacity: 0.12;
+            user-select: none;
+        }
+        .about-text p { font-size: 0.95rem; line-height: 2.2; color: var(--paper); opacity: 0.65; margin-bottom: 18px; }
+        .about-text p:last-child { margin-bottom: 0; }
+        .about-cta {
+            display: inline-flex; align-items: center; gap: 12px;
+            margin-top: 40px; padding: 14px 28px;
+            border: 1px solid rgba(212,96,122,0.4);
+            color: var(--pink-light); text-decoration: none;
+            font-size: 0.7rem; letter-spacing: 0.25em; text-transform: uppercase;
+            transition: all 0.3s; position: relative; overflow: hidden;
+        }
+        .about-cta::before {
+            content: ''; position: absolute; inset: 0; background: var(--pink);
+            transform: scaleX(0); transform-origin: left; transition: transform 0.35s ease;
+        }
+        .about-cta:hover { color: var(--paper); border-color: var(--pink); }
+        .about-cta:hover::before { transform: scaleX(1); }
+        .about-cta span, .about-cta i { position: relative; z-index: 1; }
+
+        /* FOOTER */
+        footer {
+            position: relative; z-index: 1;
+            border-top: 1px solid var(--divider);
+            padding: 40px 48px;
+            display: flex; align-items: center; justify-content: space-between;
+            flex-wrap: wrap; gap: 20px;
+        }
+        .footer-logo { font-family: 'Cormorant Garamond', serif; font-size: 1rem; font-style: italic; color: var(--pink-light); letter-spacing: 0.12em; }
+        .footer-links { display: flex; gap: 28px; }
+        .footer-links a { display: flex; align-items: center; gap: 8px; color: var(--paper); opacity: 0.35; text-decoration: none; font-size: 0.7rem; letter-spacing: 0.15em; transition: opacity 0.3s; }
+        .footer-links a:hover { opacity: 0.9; }
+        .footer-copy { font-size: 0.62rem; letter-spacing: 0.15em; color: var(--paper); opacity: 0.2; }
+
+        /* RESPONSIVE */
+        @media (max-width: 1024px) {
+            .cast-grid { grid-template-columns: repeat(3, 1fr); }
+        }
+        @media (max-width: 768px) {
+            nav { padding: 18px 24px; }
+            .section-inner { padding: 70px 24px; }
+            .cast-grid { grid-template-columns: repeat(2, 1fr); }
+            .about-layout { grid-template-columns: 1fr; gap: 32px; }
+            .about-deco-title { display: none; }
+            footer { flex-direction: column; align-items: flex-start; padding: 32px 24px; }
+            .details-grid { grid-template-columns: 1fr 1fr; }
+            .cast-card-name { font-size: 1.1rem; }
+        }
+        @media (max-width: 480px) {
+            .cast-grid { grid-template-columns: repeat(2, 1fr); }
+            .details-grid { grid-template-columns: 1fr; }
+            .cast-card-name { font-size: 1rem; }
+        }
+
+        /* ── LOADING SCREEN ── */
+        #loader {
+            position: fixed; inset: 0; z-index: 9999;
+            background: var(--ink);
+            display: flex; flex-direction: column;
+            align-items: center; justify-content: center;
+            overflow: hidden;
+            transition: opacity 0.9s cubic-bezier(0.77,0,0.175,1),
+                        visibility 0.9s;
+        }
+        #loader.hidden {
+            opacity: 0; visibility: hidden; pointer-events: none;
+        }
+        #loader::before {
+            content: '';
+            position: absolute; inset: 0; pointer-events: none;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='300' height='300' filter='url(%23n)' opacity='0.045'/%3E%3C/svg%3E");
+        }
+        .loader-glow {
+            position: absolute; border-radius: 50%;
+            filter: blur(100px); pointer-events: none;
+        }
+        .loader-glow-1 {
+            width: 500px; height: 500px;
+            background: radial-gradient(circle, rgba(212,96,122,0.18) 0%, transparent 65%);
+            top: -150px; right: -100px;
+            animation: drift1 10s ease-in-out infinite;
+        }
+        .loader-glow-2 {
+            width: 400px; height: 400px;
+            background: radial-gradient(circle, rgba(212,96,122,0.12) 0%, transparent 65%);
+            bottom: -100px; left: -80px;
+            animation: drift2 14s ease-in-out infinite;
+        }
+        .loader-vline {
+            position: absolute; width: 1px; top: 0; bottom: 0;
+            background: linear-gradient(to bottom,
+                transparent 0%, rgba(212,96,122,0.2) 40%,
+                rgba(212,96,122,0.2) 60%, transparent 100%);
+            left: 50%; transform: translateX(-50%);
+        }
+        .loader-content {
+            position: relative; z-index: 1;
+            display: flex; flex-direction: column;
+            align-items: center;
+        }
+        .loader-eyebrow {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 0.62rem; letter-spacing: 0.5em;
+            text-transform: uppercase; color: var(--pink);
+            opacity: 0;
+            animation: loaderFadeUp 0.8s 0.2s forwards;
+        }
+        .loader-title {
+            font-family: 'Zen Old Mincho', serif;
+            font-size: clamp(2.8rem, 7vw, 5.5rem);
+            font-weight: 900; line-height: 1;
+            letter-spacing: 0.06em;
+            background: linear-gradient(135deg, var(--paper) 35%, var(--pink-pale) 100%);
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin: 20px 0 16px;
+            opacity: 0;
+            animation: loaderFadeUp 0.9s 0.4s forwards;
+        }
+        .loader-subtitle {
+            font-family: 'Shippori Mincho', serif;
+            font-size: 0.78rem; letter-spacing: 0.24em;
+            color: var(--paper); opacity: 0;
+            animation: loaderFadeUp 0.8s 0.65s forwards;
+        }
+        .loader-bar-wrap {
+            margin-top: 54px; width: 220px;
+            opacity: 0;
+            animation: loaderFadeUp 0.6s 0.85s forwards;
+        }
+        .loader-bar-track {
+            width: 100%; height: 1px;
+            background: rgba(245,240,232,0.1);
+            position: relative; overflow: hidden;
+        }
+        .loader-bar-fill {
+            position: absolute; top: 0; left: 0; height: 100%;
+            background: linear-gradient(to right, var(--pink), var(--pink-light));
+            width: 0%;
+            box-shadow: 0 0 10px rgba(212,96,122,0.8);
+        }
+        .loader-bar-pct {
+            margin-top: 12px;
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 0.62rem; letter-spacing: 0.35em;
+            color: var(--pink); opacity: 0.55;
+            text-align: right;
+        }
+        .loader-diamond {
+            width: 5px; height: 5px;
+            background: var(--pink);
+            transform: rotate(45deg);
+            margin: 24px auto 0;
+            opacity: 0;
+            box-shadow: 0 0 12px var(--pink);
+            animation: loaderFadeUp 0.5s 0.7s forwards,
+                       loaderPulse 2s 1.5s ease-in-out infinite;
+        }
+        .loader-curtain {
+            position: absolute; bottom: 0; left: 0; right: 0;
+            height: 0%;
+            background: var(--ink);
+            transition: height 0.65s cubic-bezier(0.77,0,0.175,1);
+        }
+        #loader.dismissing .loader-curtain { height: 100%; }
+
+        @keyframes loaderFadeUp {
+            from { opacity: 0; transform: translateY(14px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes loaderPulse {
+            0%,100% { opacity:0.5; box-shadow: 0 0 8px var(--pink); }
+            50%     { opacity:1;   box-shadow: 0 0 22px var(--pink), 0 0 44px rgba(212,96,122,0.25); }
+        }
+
+    </style>
 </head>
 <body>
-    <!-- 背景パーティクル -->
-    <div id="particles-container">
-        <canvas id="particles-canvas"></canvas>
+
+    <!-- ── LOADING SCREEN ── -->
+    <div id="loader">
+        <div class="loader-glow loader-glow-1"></div>
+        <div class="loader-glow loader-glow-2"></div>
+        <div class="loader-vline"></div>
+        <div class="loader-content">
+            <div class="loader-eyebrow">VRChat Concept Event</div>
+            <div class="loader-title">待合室藍愛</div>
+            <div class="loader-subtitle">君と私の交わることのない一夜の物語</div>
+            <div class="loader-diamond"></div>
+            <div class="loader-bar-wrap">
+                <div class="loader-bar-track">
+                    <div class="loader-bar-fill" id="loaderBar"></div>
+                </div>
+                <div class="loader-bar-pct" id="loaderPct">0%</div>
+            </div>
+        </div>
+        <div class="loader-curtain" id="loaderCurtain"></div>
     </div>
 
-    <!-- メインヘッダー -->
-    <header class="hero-section">
-        <div class="hero-overlay"></div>
-        <div class="hero-content">
-            <!-- 装飾フレーム -->
-            <div class="decorative-frame">
-                <div class="frame-corner top-left"></div>
-                <div class="frame-corner top-right"></div>
-                <div class="frame-corner bottom-left"></div>
-                <div class="frame-corner bottom-right"></div>
-                
-                <!-- タイトル部分 -->
-                <div class="title-section">
-                    <div class="ornament-top">
-                        <!--<i class="fas fa-gem"></i>-->
-                        <div class="ornament-line"></div>
-                        <!--<i class="fas fa-gem"></i>-->
-                    </div>
-                    
-                    <h1 class="main-title">
-                        <span class="title-glow">待合室藍愛</span>
-                    </h1>
-                    
-                    <div class="subtitle-container">
-                        <div class="subtitle-ornament left">◆</div>
-                        <h2 class="subtitle">君と私の交わることのない一夜の物語</h2>
-                        <div class="subtitle-ornament right">◆</div>
-                    </div>
-                    
-                    <div class="ornament-bottom">
-                        <!--<i class="fas fa-star"></i>-->
-                        <div class="ornament-line"></div>
-                        <!--<i class="fas fa-star"></i>-->
-                    </div>
-                </div>
-            </div>
-            
-            <!-- スクロール指示 -->
-            <div class="scroll-indicator">
-                <span>Scroll Down</span>
-                <i class="fas fa-chevron-down"></i>
-            </div>
+
+    <div class="ambient ambient-1"></div>
+    <div class="ambient ambient-2"></div>
+    <div class="ambient ambient-3"></div>
+
+    <nav>
+        <a href="#" class="nav-logo">待合室 藍愛</a>
+        <a href="https://x.com/VRC_Aiai" target="_blank" rel="noopener noreferrer" class="nav-x">
+            <i class="fab fa-x-twitter"></i>
+            <span>公式X</span>
+        </a>
+    </nav>
+
+    <header class="hero">
+        <p class="hero-eyebrow"><span></span>VRChat Concept Event<span></span></p>
+        <h1 class="hero-title">
+            <span class="hero-title-glow">待合室藍愛</span>
+        </h1>
+        <p class="hero-subtitle">君と私の交わることのない一夜の物語</p>
+        <div class="hero-scroll">
+            <span>Scroll</span>
+            <i class="fas fa-chevron-down"></i>
         </div>
     </header>
 
-    <!-- イベント詳細 -->
     <main>
-        <section class="event-details">
-            <div class="container">
-                <div class="section-header">
-                    <h2 class="section-title">Event Details</h2>
-                    <div class="section-underline"></div>
-                </div>
-                
+
+        <section class="details-section">
+            <div class="section-inner">
+                <div class="section-label">Event Details</div>
                 <div class="details-grid">
                     <div class="detail-item">
-                        <div class="detail-icon">
-                            <i class="fas fa-calendar-alt"></i>
-                        </div>
-                        <div class="detail-content">
-                            <h3>開催日時</h3>
-                            <p>月1～2回の不定期営業</p>
-                        </div>
+                        <div class="detail-icon"><i class="fas fa-calendar-alt"></i></div>
+                        <div class="detail-key">開催日時</div>
+                        <div class="detail-val">月1〜2回の不定期営業</div>
                     </div>
-                    
                     <div class="detail-item">
-                        <div class="detail-icon">
-                            <i class="fas fa-map-marker-alt"></i>
-                        </div>
-                        <div class="detail-content">
-                            <h3>場所</h3>
-                            <p>VRChat World</p>
-                        </div>
+                        <div class="detail-icon"><i class="fas fa-map-marker-alt"></i></div>
+                        <div class="detail-key">場所</div>
+                        <div class="detail-val">VRChat World</div>
                     </div>
-                    
                     <div class="detail-item">
-                        <div class="detail-icon">
-                            <i class="fab fa-x"></i>
-                        </div>
-                        <div class="detail-content">
-                            <h3>公式X</h3>
-                            <p><a href="https://x.com/VRC_Aiai" target="_blank" rel="noopener noreferrer">@VRC_Aiai</a></p>
-                        </div>
+                        <div class="detail-icon"><i class="fab fa-x-twitter"></i></div>
+                        <div class="detail-key">公式X</div>
+                        <div class="detail-val"><a href="https://x.com/VRC_Aiai" target="_blank" rel="noopener noreferrer">@VRC_Aiai</a></div>
                     </div>
-                    
                     <div class="detail-item">
-                        <div class="detail-icon">
-                            <i class="fas fa-info-circle"></i>
-                        </div>
-                        <div class="detail-content">
-                            <h3>イベントタイプ</h3>
-                            <p>1対1イチャイチャ接客 RPイベント</p>
-                        </div>
+                        <div class="detail-icon"><i class="fas fa-heart"></i></div>
+                        <div class="detail-key">イベントタイプ</div>
+                        <div class="detail-val">1対1イチャイチャ接客 RPイベント</div>
                     </div>
-                    
                     <div class="detail-item">
-                        <div class="detail-icon">
-                            <i class="fas fa-envelope"></i>
-                        </div>
-                        <div class="detail-content">
-                            <h3>応募フォーム</h3>
-                            <p>公式Xの営業ポストからご予約ください</p>
-                        </div>
+                        <div class="detail-icon"><i class="fas fa-envelope"></i></div>
+                        <div class="detail-key">ご予約</div>
+                        <div class="detail-val">公式Xの営業ポストからご予約ください</div>
                     </div>
-
                 </div>
             </div>
         </section>
 
-        <!-- キャスト紹介 -->
         <section class="cast-section">
-            <div class="container">
-                <div class="section-header">
-                    <h2 class="section-title">Cast</h2>
-                    <div class="section-underline"></div>
-                </div>
-                
+            <div class="section-inner">
+                <div class="section-label">Cast</div>
                 <div class="cast-grid">
-                    <a href="cast/shiro.html" class="cast-card-link">
-                        <div class="cast-card">
-                            <div class="cast-image-container">
-                                <div class="cast-placeholder">
-                                    <i class="fas fa-user"></i>
-                                    <img src="photo/posters/c96ef401698c0169.png">
-                                    <p>Cast Photo</p>
-                                </div>
-                                <div class="cast-overlay"></div>
-                            </div>
-                            <div class="cast-info">
-                                <h3 class="cast-name">しろ</h3>
-                                <p class="cast-role">キャスト</p>
-                            </div>
-                        </div>
-                    </a>
-                    
+
                     <a href="cast/chinatsu.html" class="cast-card-link">
                         <div class="cast-card">
-                            <div class="cast-image-container">
-                                <div class="cast-placeholder">
-                                    <i class="fas fa-user"></i>
-                                    <img src="photo\posters\43f82933b18e14fd.png">
-                                    <p>Cast Photo</p>
-                                </div>
-                                <div class="cast-overlay"></div>
-                            </div>
-                            <div class="cast-info">
-                                <h3 class="cast-name">ちなつ</h3>
-                                <p class="cast-role">キャスト</p>
+                            <div class="cast-img-wrap"><img src="photo/posters/43f82933b18e14fd.png" alt="ちなつ"></div>
+                            <div class="cast-card-num">02</div>
+                            <div class="cast-card-overlay">
+                                <div class="cast-card-name">ちなつ</div>
+                                <div class="cast-card-role">キャスト</div>
                             </div>
                         </div>
                     </a>
-                    
-                    <a href="cast/nichimaru.html" class="cast-card-link">
-                        <div class="cast-card">
-                            <div class="cast-image-container">
-                                <div class="cast-placeholder">
-                                    <i class="fas fa-user"></i>
-                                    <img src="photo/posters/8a186ba7ccfed08c.png">
-                                    <p>Cast Photo</p>
-                                </div>
-                                <div class="cast-overlay"></div>
-                            </div>
-                            <div class="cast-info">
-                                <h3 class="cast-name">にちまる</h3>
-                                <p class="cast-role">キャスト</p>
-                            </div>
-                        </div>
-                    </a>
-                    
+
                     <a href="cast/hana.html" class="cast-card-link">
                         <div class="cast-card">
-                            <div class="cast-image-container">
-                                <div class="cast-placeholder">
-                                    <i class="fas fa-user"></i>
-                                    <img src="photo/posters/HANA.png">
-                                    <p>Cast Photo</p>
-                                </div>
-                                <div class="cast-overlay"></div>
-                            </div>
-                            <div class="cast-info">
-                                <h3 class="cast-name">はな</h3>
-                                <p class="cast-role">キャスト</p>
+                            <div class="cast-img-wrap"><img src="photo/posters/HANA.png" alt="はな"></div>
+                            <div class="cast-card-num">04</div>
+                            <div class="cast-card-overlay">
+                                <div class="cast-card-name">はな</div>
+                                <div class="cast-card-role">キャスト</div>
                             </div>
                         </div>
                     </a>
-                    
+
                     <a href="cast/rarucha.html" class="cast-card-link">
                         <div class="cast-card">
-                            <div class="cast-image-container">
-                                <div class="cast-placeholder">
-                                    <i class="fas fa-user"></i>
-                                    <img src="photo/posters/1.png">
-                                    <p>Cast Photo</p>
-                                </div>
-                                <div class="cast-overlay"></div>
-                            </div>
-                            <div class="cast-info">
-                                <h3 class="cast-name">らる</h3>
-                                <p class="cast-role">キャスト</p>
+                            <div class="cast-img-wrap"><img src="photo/posters/1.png" alt="らる"></div>
+                            <div class="cast-card-num">05</div>
+                            <div class="cast-card-overlay">
+                                <div class="cast-card-name">らる</div>
+                                <div class="cast-card-role">キャスト</div>
                             </div>
                         </div>
                     </a>
-                    
-                    <a href="cast/ruu.html" class="cast-card-link">
-                        <div class="cast-card">
-                            <div class="cast-image-container">
-                                <div class="cast-placeholder">
-                                    <i class="fas fa-user"></i>
-                                    <img src="photo/posters/a06aaf57d97d8877.png">
-                                    <p>Cast Photo</p>
-                                </div>
-                                <div class="cast-overlay"></div>
-                            </div>
-                            <div class="cast-info">
-                                <h3 class="cast-name">るう</h3>
-                                <p class="cast-role">キャスト</p>
-                            </div>
-                        </div>
-                    </a>
-                                        
+
                     <a href="cast/tama.html" class="cast-card-link">
                         <div class="cast-card">
-                            <div class="cast-image-container">
-                                <div class="cast-placeholder">
-                                    <i class="fas fa-user"></i>
-                                    <img src="photo/posters/midori.png">
-                                    <p>Cast Photo</p>
-                                </div>
-                                <div class="cast-overlay"></div>
-                            </div>
-                            <div class="cast-info">
-                                <h3 class="cast-name">たま</h3>
-                                <p class="cast-role">キャスト</p>
+                            <div class="cast-img-wrap"><img src="photo/posters/midori.png" alt="たま"></div>
+                            <div class="cast-card-num">07</div>
+                            <div class="cast-card-overlay">
+                                <div class="cast-card-name">たま</div>
+                                <div class="cast-card-role">キャスト</div>
                             </div>
                         </div>
                     </a>
-                    
+
+                    <a href="cast/shinonome.html" class="cast-card-link">
+                        <div class="cast-card">
+                            <div class="cast-img-wrap"><img src="photo/posters/13bfd5745068d778.png" alt="しののめ"></div>
+                            <div class="cast-card-num">08</div>
+                            <div class="cast-card-overlay">
+                                <div class="cast-card-name">しののめ</div>
+                                <div class="cast-card-role">キャスト</div>
+                            </div>
+                        </div>
+                    </a>
+
+                    <a href="cast/momo.html" class="cast-card-link">
+                        <div class="cast-card">
+                            <div class="cast-img-wrap"><img src="photo/posters/image-2.png" alt="もも"></div>
+                            <div class="cast-card-num">09</div>
+                            <div class="cast-card-overlay">
+                                <div class="cast-card-name">もも</div>
+                                <div class="cast-card-role">キャスト</div>
+                            </div>
+                        </div>
+                    </a>
+
+                    <a href="cast/iori.html" class="cast-card-link">
+                        <div class="cast-card">
+                            <div class="cast-img-wrap"><img src="photo/posters/bdf94286b7a2e339.png" alt="いおり"></div>
+                            <div class="cast-card-num">10</div>
+                            <div class="cast-card-overlay">
+                                <div class="cast-card-name">いおり</div>
+                                <div class="cast-card-role">キャスト</div>
+                            </div>
+                        </div>
+                    </a>
+
+                    <a href="cast/neko.html" class="cast-card-link">
+                        <div class="cast-card">
+                            <div class="cast-img-wrap"><img src="photo/posters/1-1.png" alt="ねこたろ"></div>
+                            <div class="cast-card-num">11</div>
+                            <div class="cast-card-overlay">
+                                <div class="cast-card-name">ねこたろ</div>
+                                <div class="cast-card-role">キャスト</div>
+                            </div>
+                        </div>
+                    </a>
+
+                    <a href="cast/tsubaki.html" class="cast-card-link">
+                        <div class="cast-card">
+                            <div class="cast-img-wrap"><img src="photo/posters/2-6.png" alt="つばき"></div>
+                            <div class="cast-card-num">12</div>
+                            <div class="cast-card-overlay">
+                                <div class="cast-card-name">つばき</div>
+                                <div class="cast-card-role">キャスト</div>
+                            </div>
+                        </div>
+                    </a>
+
+                    <a href="cast/yoi.html" class="cast-card-link">
+                        <div class="cast-card">
+                            <div class="cast-img-wrap"><img src="photo/posters/20260217_235645_2160x3840A.png" alt="よい"></div>
+                            <div class="cast-card-num">13</div>
+                            <div class="cast-card-overlay">
+                                <div class="cast-card-name">よい</div>
+                                <div class="cast-card-role">キャスト</div>
+                            </div>
+                        </div>
+                    </a>
+
                 </div>
             </div>
         </section>
 
-        <!-- アバウトセクション -->
         <section class="about-section">
-            <div class="container">
-                <div class="section-header">
-                    <h2 class="section-title">About</h2>
-                    <div class="section-underline"></div>
-                </div>
-                
-                <div class="about-content">
-                    <div class="about-text">
-                        <p>「待合室 藍愛」は、大人のお店の“待合室”を舞台としたコンセプトイベントです。</p>
-                        <p>同級生、友人の妹、元先生など、意外な関係のキャストとの甘い時間を提供します。</p>
-                        <p>心に残る特別な時間をあなたへ。</p>
+            <div class="section-inner">
+                <div class="section-label">About</div>
+                <div class="about-layout">
+                    <div>
+                        <div class="about-deco-title">Aiai</div>
+                    </div>
+                    <div>
+                        <div class="about-text">
+                            <p>「待合室 藍愛」は、大人のお店の"待合室"を舞台としたコンセプトイベントです。</p>
+                            <p>同級生、友人の妹、元先生など、意外な関係のキャストとの甘い時間を提供します。</p>
+                            <p>心に残る特別な時間をあなたへ。</p>
+                        </div>
+                        <a href="https://x.com/VRC_Aiai" target="_blank" rel="noopener noreferrer" class="about-cta">
+                            <span>公式Xで最新情報を見る</span>
+                            <i class="fab fa-x-twitter"></i>
+                        </a>
                     </div>
                 </div>
             </div>
         </section>
+
     </main>
 
-    <!-- フッター -->
-    <footer class="footer">
-        <div class="container">
-            <div class="footer-content">
-                <div class="footer-title">待合室藍愛</div>
-                <div class="footer-links">
-                    <a href="https://x.com/VRC_Aiai" target="_blank" rel="noopener noreferrer">
-                        <i class="fab fa-x-twitter"></i> 公式X
-                    </a>
-                </div>
-                <div class="footer-copyright">
-                    <p>&copy; 2025 待合室藍愛. All rights reserved.</p>
-                </div>
-            </div>
+    <footer>
+        <div class="footer-logo">待合室 藍愛</div>
+        <div class="footer-links">
+            <a href="https://x.com/VRC_Aiai" target="_blank" rel="noopener noreferrer">
+                <i class="fab fa-x-twitter"></i>
+                <span>@VRC_Aiai</span>
+            </a>
         </div>
+        <div class="footer-copy">© 2025 待合室藍愛. All rights reserved.</div>
     </footer>
 
-    <!-- JavaScript -->
-    <script src="js/particles.js"></script>
-    <script src="js/animations.js"></script>
-    <script src="js/main.js"></script>
+
+    <script>
+    (function() {
+        const loader  = document.getElementById('loader');
+        const bar     = document.getElementById('loaderBar');
+        const pct     = document.getElementById('loaderPct');
+        const SEEN_KEY = 'aiai_visited';
+
+        // ── 2回目以降は即座に非表示にしてスキップ ──
+        if (sessionStorage.getItem(SEEN_KEY)) {
+            loader.style.display = 'none';
+            document.body.style.overflow = '';
+            return;
+        }
+
+        // 初回訪問フラグをセット（タブを閉じるまで有効）
+        sessionStorage.setItem(SEEN_KEY, '1');
+
+        let progress  = 0;
+        let dismissed = false;
+
+        // ── プログレスバーアニメーション ──
+        function tick() {
+            if (dismissed) return;
+            const step = progress < 70 ? (Math.random() * 4 + 2)
+                       : progress < 90 ? (Math.random() * 1.5 + 0.5)
+                       : 0.3;
+            progress = Math.min(progress + step, 97);
+            bar.style.width = progress + '%';
+            pct.textContent = Math.floor(progress) + '%';
+            if (progress < 97) {
+                setTimeout(tick, progress < 70 ? 60 : 100);
+            }
+        }
+        setTimeout(tick, 900);
+
+        // ── ローダーを閉じる ──
+        function dismiss() {
+            if (dismissed) return;
+            dismissed = true;
+            bar.style.transition = 'width 0.3s ease';
+            bar.style.width = '100%';
+            pct.textContent = '100%';
+            setTimeout(() => {
+                loader.classList.add('dismissing');
+                setTimeout(() => {
+                    loader.classList.add('hidden');
+                    document.body.style.overflow = '';
+                }, 700);
+            }, 350);
+        }
+
+        // ページ読み込み完了 or 最大2.8秒で消す
+        window.addEventListener('load', () => setTimeout(dismiss, 300));
+        setTimeout(dismiss, 2800);
+
+        // 読み込み中はスクロール禁止
+        document.body.style.overflow = 'hidden';
+    })();
+    </script>
+
 </body>
 </html>

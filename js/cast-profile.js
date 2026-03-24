@@ -275,8 +275,8 @@ class CastProfileController {
     // フィールドグロウ効果
     addFieldGlow(field) {
         field.style.boxShadow = `
-            0 5px 20px rgba(255, 20, 147, 0.3),
-            0 0 30px rgba(255, 20, 147, 0.2)
+            0 5px 20px rgba(212, 96, 122, 0.3),
+            0 0 30px rgba(212, 96, 122, 0.2)
         `;
     }
     
@@ -333,7 +333,7 @@ class CastProfileController {
                 position: fixed;
                 width: 15px;
                 height: 15px;
-                background: radial-gradient(circle, rgba(255, 20, 147, 0.8), transparent);
+                background: radial-gradient(circle, rgba(212, 96, 122, 0.8), transparent);
                 border-radius: 50%;
                 pointer-events: none;
                 z-index: 999;
@@ -365,7 +365,7 @@ class CastProfileController {
         ripple.style.cssText = `
             position: absolute;
             border-radius: 50%;
-            background: rgba(255, 20, 147, 0.3);
+            background: rgba(212, 96, 122, 0.3);
             pointer-events: none;
             width: 50px;
             height: 50px;

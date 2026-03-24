@@ -3,184 +3,620 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>はな - キャスト | 待合室藍愛</title>
-    
-    <!-- Google Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&family=Noto+Serif+JP:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    
-    <!-- Font Awesome -->
+    <title>はな — 待合室藍愛</title>
+    <link href="https://fonts.googleapis.com/css2?family=Shippori+Mincho:wght@400;500;600;700&family=Zen+Old+Mincho:wght@400;700;900&family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css">
-    
-    <!-- CSS Files -->
-    <link rel="stylesheet" href="../css/style.css">
-    <link rel="stylesheet" href="../css/animations.css">
-    <link rel="stylesheet" href="../css/cast-profile.css">
-</head>
-<body class="cast-profile-page">
-    <!-- パーティクル背景 -->
-    <div id="particles-container">
-        <canvas id="particles-canvas"></canvas>
-    </div>
+    <style>
+        :root {
+            --ink: #0d0b0f;
+            --paper: #f5f0e8;
+            --mist: #e8e0d0;
+            --gold: #f1a0bf;
+            --gold-light: #f1a0bf;
+            --blush: #c4748a;
+            --indigo: #2a1f4e;
+            --slate: #4a4560;
+            --fog: rgba(245,240,232,0.06);
+        }
 
-    <!-- ナビゲーションヘッダー -->
-    <nav class="cast-nav">
-        <div class="cast-nav-content">
-            <a href="../index.html" class="back-to-main">
-                <i class="fas fa-arrow-left"></i>
-                <span>メインページへ戻る</span>
-            </a>
-            <div class="cast-nav-title">待合室藍愛</div>
-        </div>
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+        html { scroll-behavior: smooth; }
+
+        body {
+            background-color: var(--ink);
+            color: var(--paper);
+            font-family: 'Shippori Mincho', serif;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        /* ── noise overlay ── */
+        body::before {
+            content: '';
+            position: fixed; inset: 0;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='300' height='300' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+            pointer-events: none; z-index: 0;
+        }
+
+        /* ── ambient glow ── */
+        .ambient {
+            position: fixed; border-radius: 50%; filter: blur(120px);
+            pointer-events: none; z-index: 0;
+        }
+        .ambient-1 {
+            width: 600px; height: 600px;
+            background: radial-gradient(circle, rgba(184,150,62,0.12) 0%, transparent 70%);
+            top: -200px; right: -100px;
+            animation: drift1 18s ease-in-out infinite;
+        }
+        .ambient-2 {
+            width: 500px; height: 500px;
+            background: radial-gradient(circle, rgba(196,116,138,0.10) 0%, transparent 70%);
+            bottom: -100px; left: -150px;
+            animation: drift2 22s ease-in-out infinite;
+        }
+        @keyframes drift1 { 0%,100%{transform:translate(0,0)} 50%{transform:translate(-40px,30px)} }
+        @keyframes drift2 { 0%,100%{transform:translate(0,0)} 50%{transform:translate(30px,-40px)} }
+
+        /* ── navigation ── */
+        nav {
+            position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+            display: flex; align-items: center; justify-content: space-between;
+            padding: 20px 40px;
+            background: linear-gradient(to bottom, rgba(13,11,15,0.9) 0%, transparent 100%);
+            backdrop-filter: blur(0px);
+        }
+        .nav-back {
+            display: flex; align-items: center; gap: 10px;
+            color: var(--paper); opacity: 0.6;
+            text-decoration: none; font-size: 0.75rem;
+            letter-spacing: 0.15em; text-transform: uppercase;
+            transition: opacity 0.3s;
+        }
+        .nav-back:hover { opacity: 1; }
+        .nav-back i { font-size: 0.65rem; }
+        .nav-title {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 1rem; font-style: italic;
+            color: var(--gold-light); letter-spacing: 0.1em;
+        }
+
+        /* ── hero section ── */
+        .hero {
+            position: relative; z-index: 1;
+            min-height: 100vh;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 0;
+        }
+
+        /* gallery side */
+        .gallery-side {
+            position: relative;
+            overflow: hidden;
+        }
+        .gallery-track {
+            display: flex; height: 100vh;
+            transition: transform 0.8s cubic-bezier(0.77, 0, 0.175, 1);
+        }
+        .gallery-item {
+            min-width: 100%; height: 100vh;
+            position: relative; overflow: hidden;
+        }
+        .gallery-item img {
+            width: 100%; height: 100%; object-fit: contain;
+            
+            transition: transform 6s ease-out;
+        }
+        .gallery-item.active img { }
+        .gallery-item::after {
+            content: '';
+            position: absolute; inset: 0;
+            background: linear-gradient(to right, transparent 60%, var(--ink) 100%),
+                        linear-gradient(to top, rgba(13,11,15,0.5) 0%, transparent 40%);
+        }
+
+        /* gallery dots */
+        .gallery-dots {
+            position: absolute; bottom: 40px; left: 40px; z-index: 10;
+            display: flex; gap: 10px;
+        }
+        .dot {
+            width: 4px; height: 24px; border-radius: 2px;
+            background: rgba(245,240,232,0.3);
+            cursor: pointer; transition: all 0.3s;
+        }
+        .dot.active {
+            background: var(--gold); height: 40px;
+        }
+
+        /* gallery counter */
+        .gallery-counter {
+            position: absolute; bottom: 44px; right: 30px; z-index: 10;
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 0.75rem; letter-spacing: 0.2em;
+            color: rgba(245,240,232,0.4);
+        }
+
+        /* gallery arrows */
+        .gallery-arrows {
+            position: absolute; top: 50%; transform: translateY(-50%);
+            right: 20px; z-index: 10;
+            display: flex; flex-direction: column; gap: 12px;
+        }
+        .arrow-btn {
+            width: 36px; height: 36px;
+            border: 1px solid rgba(245,240,232,0.2);
+            background: rgba(13,11,15,0.4); backdrop-filter: blur(8px);
+            color: var(--paper); cursor: pointer;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 0.65rem;
+            transition: all 0.3s; border-radius: 2px;
+        }
+        .arrow-btn:hover { background: var(--gold); border-color: var(--gold); }
+
+        /* info side */
+        .info-side {
+            position: relative; z-index: 1;
+            display: flex; flex-direction: column;
+            justify-content: center;
+            padding: 120px 60px 80px 80px;
+            background: linear-gradient(135deg, rgba(42,31,78,0.15) 0%, transparent 60%);
+        }
+
+        .cast-label {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 0.7rem; letter-spacing: 0.35em;
+            text-transform: uppercase; color: var(--gold);
+            margin-bottom: 20px;
+            display: flex; align-items: center; gap: 16px;
+        }
+        .cast-label::before {
+            content: ''; display: block;
+            width: 40px; height: 1px; background: var(--gold);
+        }
+
+        .cast-name {
+            font-family: 'Zen Old Mincho', serif;
+            font-size: clamp(4rem, 6vw, 7rem);
+            font-weight: 900; line-height: 1;
+            letter-spacing: -0.02em;
+            color: var(--paper);
+            margin-bottom: 8px;
+        }
+        .cast-name-en {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 1rem; font-style: italic;
+            color: var(--gold-light); opacity: 0.7;
+            letter-spacing: 0.2em;
+            margin-bottom: 60px;
+        }
+
+        /* profile fields */
+        .profile-fields {
+            display: flex; flex-direction: column; gap: 0;
+        }
+        .field {
+            padding: 20px 0;
+            border-bottom: 1px solid rgba(245,240,232,0.08);
+            display: grid; grid-template-columns: 80px 1fr;
+            gap: 24px; align-items: start;
+            opacity: 0; transform: translateY(20px);
+            animation: fadeUp 0.7s forwards;
+        }
+        .field:nth-child(1) { animation-delay: 0.3s; }
+        .field:nth-child(2) { animation-delay: 0.45s; }
+        .field:nth-child(3) { animation-delay: 0.6s; }
+
+        @keyframes fadeUp {
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .field-key {
+            font-size: 0.65rem; letter-spacing: 0.2em;
+            text-transform: uppercase;
+            color: var(--gold); opacity: 0.7;
+            padding-top: 3px;
+        }
+        .field-val {
+            font-family: 'Shippori Mincho', serif;
+            font-size: 0.95rem; line-height: 1.7;
+            color: var(--paper); opacity: 0.85;
+        }
+        .field-val.quote {
+            font-size: 1.05rem;
+            color: var(--paper);
+            opacity: 1;
+            padding-left: 12px;
+            border-left: 2px solid var(--blush);
+        }
+
+        /* decorative line */
+        .deco-line {
+            width: 1px; height: 80px;
+            background: linear-gradient(to bottom, var(--gold), transparent);
+            margin: 50px 0 50px 0;
+        }
+
+        /* ── other cast section ── */
+        .other-section {
+            position: relative; z-index: 1;
+            padding: 80px 40px;
+            border-top: 1px solid rgba(245,240,232,0.06);
+        }
+
+        .other-title {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 0.7rem; letter-spacing: 0.4em;
+            text-transform: uppercase; color: var(--gold);
+            text-align: center; margin-bottom: 50px;
+        }
+
+        .cast-grid {
+            display: flex; flex-wrap: wrap;
+            justify-content: center; gap: 2px;
+            max-width: 900px; margin: 0 auto;
+        }
+
+        .cast-card {
+            width: 120px;
+            text-decoration: none; color: inherit;
+            padding: 24px 16px 20px;
+            text-align: center;
+            border: 1px solid rgba(245,240,232,0.06);
+            transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+            position: relative; overflow: hidden;
+            background: rgba(245,240,232,0.02);
+        }
+        .cast-card::before {
+            content: ''; position: absolute;
+            inset: 0; background: linear-gradient(135deg, rgba(184,150,62,0.08), transparent);
+            opacity: 0; transition: opacity 0.3s;
+        }
+        .cast-card:hover { border-color: rgba(184,150,62,0.3); transform: translateY(-4px); }
+        .cast-card:hover::before { opacity: 1; }
+
+        .card-avatar {
+            width: 48px; height: 48px;
+            border-radius: 50%;
+            border: 1px solid rgba(184,150,62,0.3);
+            display: flex; align-items: center; justify-content: center;
+            margin: 0 auto 14px;
+            color: var(--gold); font-size: 1rem;
+            background: rgba(184,150,62,0.05);
+        }
+        .card-name {
+            font-family: 'Shippori Mincho', serif;
+            font-size: 0.9rem; color: var(--paper);
+            opacity: 0.8; margin-bottom: 4px;
+        }
+        .card-role {
+            font-size: 0.6rem; letter-spacing: 0.15em;
+            color: var(--gold); opacity: 0.6;
+        }
+
+        /* ── footer ── */
+        footer {
+            position: relative; z-index: 1;
+            text-align: center; padding: 30px;
+            border-top: 1px solid rgba(245,240,232,0.04);
+            font-size: 0.65rem; letter-spacing: 0.2em;
+            color: rgba(245,240,232,0.2);
+        }
+
+        /* ── responsive ── */
+        @media (max-width: 768px) {
+            .hero { grid-template-columns: 1fr; grid-template-rows: 55vh auto; min-height: unset; }
+            .gallery-side { height: 55vh; }
+            .gallery-track { height: 55vh; }
+            .gallery-item { height: 55vh; }
+            .gallery-item::after { background: linear-gradient(to bottom, transparent 60%, var(--ink) 100%); }
+            .info-side { padding: 50px 30px 60px; }
+            .cast-name { font-size: 3.5rem; }
+            nav { padding: 16px 24px; }
+            .cast-grid { gap: 2px; }
+            .cast-card { width: 100px; }
+        }
+    
+        /* ── other cast grid (new) ── */
+        .other-section {
+            position: relative; z-index: 1;
+            padding: 80px 40px 100px;
+            border-top: 1px solid rgba(245,240,232,0.06);
+        }
+        .other-title {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 0.68rem; letter-spacing: 0.45em;
+            text-transform: uppercase; color: var(--gold);
+            text-align: center; margin-bottom: 48px;
+            display: flex; align-items: center; gap: 16px;
+            justify-content: center;
+        }
+        .other-title::before, .other-title::after {
+            content: ''; display: block; flex: 1; max-width: 80px;
+            height: 1px; background: linear-gradient(to right, transparent, var(--gold));
+        }
+        .other-title::after { background: linear-gradient(to left, transparent, var(--gold)); }
+
+        .other-cast-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+            gap: 3px;
+            max-width: 1100px; margin: 0 auto;
+        }
+        .other-cast-card {
+            text-decoration: none; color: inherit;
+            display: block; position: relative;
+            background: rgba(245,240,232,0.02);
+            border: 1px solid rgba(245,240,232,0.06);
+            overflow: hidden;
+            aspect-ratio: 2/3;
+            transition: border-color 0.4s, box-shadow 0.4s;
+        }
+        .other-cast-card:hover {
+            border-color: rgba(212,96,122,0.45);
+            box-shadow: 0 0 30px rgba(212,96,122,0.1);
+        }
+        .other-cast-img {
+            position: absolute; inset: 0;
+        }
+        .other-cast-img img {
+            width: 100%; height: 100%; object-fit: contain;
+            transition: transform 0.7s cubic-bezier(0.25,0.46,0.45,0.94);
+        }
+        .other-cast-card:hover .other-cast-img img { transform: scale(1.05); }
+        .other-cast-img-overlay {
+            position: absolute; inset: 0;
+            background: linear-gradient(to top, rgba(10,8,12,0.88) 0%, rgba(10,8,12,0.15) 40%, transparent 65%);
+            transition: background 0.4s;
+        }
+        .other-cast-card:hover .other-cast-img-overlay {
+            background: linear-gradient(160deg, rgba(212,96,122,0.18) 0%, transparent 45%),
+                        linear-gradient(to top, rgba(10,8,12,0.88) 0%, rgba(10,8,12,0.15) 40%, transparent 65%);
+        }
+        .other-cast-info {
+            position: absolute; bottom: 0; left: 0; right: 0;
+            padding: 28px 14px 16px; z-index: 2;
+        }
+        .other-cast-num {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 0.6rem; letter-spacing: 0.2em;
+            color: var(--gold); opacity: 0.5;
+            margin-bottom: 4px;
+        }
+        .other-cast-name {
+            font-family: 'Zen Old Mincho', serif;
+            font-size: 1rem; font-weight: 700;
+            color: var(--paper); letter-spacing: 0.04em;
+            margin-bottom: 3px;
+            transition: color 0.3s;
+        }
+        .other-cast-card:hover .other-cast-name { color: var(--pink-pale, #f0b0c0); }
+        .other-cast-role {
+            font-size: 0.58rem; letter-spacing: 0.22em;
+            color: var(--blush); opacity: 0.7;
+        }
+        @media (max-width: 768px) {
+            .other-section { padding: 60px 20px 80px; }
+            .other-cast-grid { grid-template-columns: repeat(3, 1fr); }
+        }
+        @media (max-width: 480px) {
+            .other-cast-grid { grid-template-columns: repeat(2, 1fr); }
+        }
+
+        </style>
+</head>
+<body>
+    <div class="ambient ambient-1"></div>
+    <div class="ambient ambient-2"></div>
+
+    <nav>
+        <a href="../index.html" class="nav-back">
+            <i class="fas fa-arrow-left"></i>
+            <span>メインへ戻る</span>
+        </a>
+        <div class="nav-title">待合室 藍愛</div>
     </nav>
 
-    <!-- メインコンテンツ -->
-    <main class="cast-main-content">
-        <!-- プロフィールセクション -->
-        <section class="cast-profile-section">
-            <!-- ギャラリー -->
-            <div class="cast-gallery">
-                <div class="gallery-container">
-                    <div class="gallery-slide active">
-                        <div class="gallery-placeholder">
-                            <!--<i class="fas fa-image"></i>-->
-                            <img src="..\photo\posters\HANA.png">
-                            <!--<p>はな メイン写真</p>-->
+    <main>
+        <section class="hero">
+            <!-- gallery -->
+            <div class="gallery-side">
+                <div class="gallery-track" id="galleryTrack">
+                    <div class="gallery-item active">
+                        <div class="gallery-placeholder" style="width:100%;height:100%;background:linear-gradient(135deg,#180a12,#2a1020);display:flex;align-items:center;justify-content:center;">
+                            <img src="../photo/posters/HANA.png" alt="はな" onerror="this.style.display='none'">
                         </div>
                     </div>
-                    <div class="gallery-slide">
-                        <div class="gallery-placeholder">
-                            <!--<i class="fas fa-image"></i>-->
-                            <img src="..\photo\VRChat_2025-09-25_17-10-55.044_3840x2160.png">
-                            <!--<p>はな サブ１</p>-->
+                    <div class="gallery-item">
+                        <div class="gallery-placeholder" style="width:100%;height:100%;background:linear-gradient(135deg,#180a12,#2a1020);display:flex;align-items:center;justify-content:center;">
+                            <img src="../photo/VRChat_2025-09-25_17-10-55.044_3840x2160.png" alt="はな 2" onerror="this.style.display='none'">
                         </div>
                     </div>
-                    <div class="gallery-slide">
-                        <div class="gallery-placeholder">
-                            <!--<i class="fas fa-image"></i>-->
-                            <img src="..\photo\VRChat_2025-09-25_17-32-23.765_3840x2160.png">
-                            <!--<p>はな サブ２</p>-->
+                    <div class="gallery-item">
+                        <div class="gallery-placeholder" style="width:100%;height:100%;background:linear-gradient(135deg,#180a12,#2a1020);display:flex;align-items:center;justify-content:center;">
+                            <img src="../photo/VRChat_2025-09-25_17-32-23.765_3840x2160.png" alt="はな 3" onerror="this.style.display='none'">
                         </div>
                     </div>
                 </div>
-                
-                <div class="gallery-controls">
-                    <div class="gallery-nav">
-                        <button class="gallery-btn gallery-prev">
-                            <i class="fas fa-chevron-left"></i>
-                        </button>
-                        <button class="gallery-btn gallery-next">
-                            <i class="fas fa-chevron-right"></i>
-                        </button>
-                    </div>
-                    <div class="gallery-indicators">
-                        <div class="gallery-dot active"></div>
-                        <div class="gallery-dot"></div>
-                        <div class="gallery-dot"></div>
-                    </div>
+
+                <div class="gallery-dots" id="galleryDots">
+                    <div class="dot active" data-index="0"></div>
+                    <div class="dot" data-index="1"></div>
+                    <div class="dot" data-index="2"></div>
+                </div>
+
+                <div class="gallery-counter" id="galleryCounter">01 / 03</div>
+
+                <div class="gallery-arrows">
+                    <button class="arrow-btn" id="prevBtn"><i class="fas fa-chevron-up"></i></button>
+                    <button class="arrow-btn" id="nextBtn"><i class="fas fa-chevron-down"></i></button>
                 </div>
             </div>
-            
-            <!-- プロフィール情報 -->
-            <div class="cast-profile-info">
-                <div class="cast-profile-content">
-                    <h1 class="cast-name-large">はな</h1>
-                    <p class="cast-role-large">キャスト</p>
-                    
-                    <div class="profile-field" data-field="name">
-                        <div class="profile-label">
-                            <!--<i class="fas fa-signature"></i>-->
-                            名前
-                        </div>
-                        <div class="profile-value">はな</div>
+
+            <!-- profile info -->
+            <div class="info-side">
+                <div class="cast-label">Cast Profile</div>
+                <h1 class="cast-name">はな</h1>
+                <p class="cast-name-en">Hana</p>
+
+                <div class="profile-fields">
+                    <div class="field">
+                        <span class="field-key">名前</span>
+                        <span class="field-val">はな</span>
                     </div>
-                    
-                    <div class="profile-field" data-field="attribute">
-                        <div class="profile-label">
-                            <!--<i class="fas fa-eye"></i>-->
-                            属性
-                        </div>
-                        <div class="profile-value">友達のお姉ちゃん</div>
+                    <div class="field">
+                        <span class="field-key">属性</span>
+                        <span class="field-val">友達のお姉ちゃん</span>
                     </div>
-                    
-                    <div class="profile-field" data-field="comment">
-                        <div class="profile-label">
-                            <!--<i class="fas fa-crystal-ball"></i>-->
-                            ひとこと
-                        </div>
-                        <div class="profile-value">「ここで会ったことは二人だけのひみつね？」</div>
+                    <div class="field">
+                        <span class="field-key">ひとこと</span>
+                        <span class="field-val quote">「ここで会ったことは二人だけのひみつね？」</span>
                     </div>
                 </div>
+
+                <div class="deco-line"></div>
             </div>
         </section>
+
         
-        <!-- 他キャスト一覧 -->
-        <section class="other-cast-section">
-            <h2 class="other-cast-title">Other Cast Members</h2>
+
+        
+
+        <!-- other cast -->
+        <section class="other-section">
+            <h2 class="other-title">Other Cast Members</h2>
             <div class="other-cast-grid">
-                <a href="shiro.html" class="other-cast-item">
-                    <div class="other-cast-avatar">
-                        <i class="fas fa-user"></i>
+                <a href="chinatsu.html" class="other-cast-card">
+                    <div class="other-cast-img">
+                        <img src="../photo/posters/43f82933b18e14fd.png" alt="ちなつ">
+                        <div class="other-cast-img-overlay"></div>
                     </div>
-                    <div class="other-cast-name">しろ</div>
-                    <div class="other-cast-role">キャスト</div>
+                    <div class="other-cast-info">
+                        <div class="other-cast-num">01</div>
+                        <div class="other-cast-name">ちなつ</div>
+                        <div class="other-cast-role">キャスト</div>
+                    </div>
                 </a>
-                
-                <a href="chinatsu.html" class="other-cast-item">
-                    <div class="other-cast-avatar">
-                        <i class="fas fa-user"></i>
+                <a href="rarucha.html" class="other-cast-card">
+                    <div class="other-cast-img">
+                        <img src="../photo/posters/1.png" alt="らる">
+                        <div class="other-cast-img-overlay"></div>
                     </div>
-                    <div class="other-cast-name">ちなつ</div>
-                    <div class="other-cast-role">キャスト</div>
+                    <div class="other-cast-info">
+                        <div class="other-cast-num">04</div>
+                        <div class="other-cast-name">らる</div>
+                        <div class="other-cast-role">キャスト</div>
+                    </div>
                 </a>
-                
-                <a href="nichimaru.html" class="other-cast-item">
-                    <div class="other-cast-avatar">
-                        <i class="fas fa-user"></i>
+                <a href="tama.html" class="other-cast-card">
+                    <div class="other-cast-img">
+                        <img src="../photo/posters/midori.png" alt="たま">
+                        <div class="other-cast-img-overlay"></div>
                     </div>
-                    <div class="other-cast-name">にちまる</div>
-                    <div class="other-cast-role">キャスト</div>
+                    <div class="other-cast-info">
+                        <div class="other-cast-num">05</div>
+                        <div class="other-cast-name">たま</div>
+                        <div class="other-cast-role">キャスト</div>
+                    </div>
                 </a>
-                <!--
-                <a href="nito.html" class="other-cast-item">
-                    <div class="other-cast-avatar">
-                        <i class="fas fa-user"></i>
+                <a href="shinonome.html" class="other-cast-card">
+                    <div class="other-cast-img">
+                        <img src="../photo/posters/13bfd5745068d778.png" alt="しののめ">
+                        <div class="other-cast-img-overlay"></div>
                     </div>
-                    <div class="other-cast-name">にこ</div>
-                    <div class="other-cast-role">キャスト</div>
+                    <div class="other-cast-info">
+                        <div class="other-cast-num">06</div>
+                        <div class="other-cast-name">しののめ</div>
+                        <div class="other-cast-role">キャスト</div>
+                    </div>
                 </a>
-                -->
-                
-                <a href="tama.html" class="other-cast-item">
-                    <div class="other-cast-avatar">
-                        <i class="fas fa-user"></i>
+                <a href="iori.html" class="other-cast-card">
+                    <div class="other-cast-img">
+                        <img src="../photo/posters/bdf94286b7a2e339.png" alt="いおり">
+                        <div class="other-cast-img-overlay"></div>
                     </div>
-                    <div class="other-cast-name">たま</div>
-                    <div class="other-cast-role">キャスト</div>
+                    <div class="other-cast-info">
+                        <div class="other-cast-num">07</div>
+                        <div class="other-cast-name">いおり</div>
+                        <div class="other-cast-role">キャスト</div>
+                    </div>
                 </a>
-                
-                
-                <a href="rarucha.html" class="other-cast-item">
-                    <div class="other-cast-avatar">
-                        <i class="fas fa-user"></i>
+                <a href="neko.html" class="other-cast-card">
+                    <div class="other-cast-img">
+                        <img src="../photo/posters/1-1.png" alt="ねこたろ">
+                        <div class="other-cast-img-overlay"></div>
                     </div>
-                    <div class="other-cast-name">らる</div>
-                    <div class="other-cast-role">キャスト</div>
+                    <div class="other-cast-info">
+                        <div class="other-cast-num">08</div>
+                        <div class="other-cast-name">ねこたろ</div>
+                        <div class="other-cast-role">キャスト</div>
+                    </div>
                 </a>
-                
-                <a href="ruu.html" class="other-cast-item">
-                    <div class="other-cast-avatar">
-                        <i class="fas fa-user"></i>
+                <a href="tsubaki.html" class="other-cast-card">
+                    <div class="other-cast-img">
+                        <img src="../photo/posters/2-6.png" alt="つばき">
+                        <div class="other-cast-img-overlay"></div>
                     </div>
-                    <div class="other-cast-name">るう</div>
-                    <div class="other-cast-role">キャスト</div>
+                    <div class="other-cast-info">
+                        <div class="other-cast-num">09</div>
+                        <div class="other-cast-name">つばき</div>
+                        <div class="other-cast-role">キャスト</div>
+                    </div>
+                </a>
+                <a href="yoi.html" class="other-cast-card">
+                    <div class="other-cast-img">
+                        <img src="../photo/posters/20260217_235645_2160x3840A.png" alt="よい">
+                        <div class="other-cast-img-overlay"></div>
+                    </div>
+                    <div class="other-cast-info">
+                        <div class="other-cast-num">10</div>
+                        <div class="other-cast-name">よい</div>
+                        <div class="other-cast-role">キャスト</div>
+                    </div>
+                </a>
+                <a href="momo.html" class="other-cast-card">
+                    <div class="other-cast-img">
+                        <img src="../photo/posters/image-2.png" alt="もも">
+                        <div class="other-cast-img-overlay"></div>
+                    </div>
+                    <div class="other-cast-info">
+                        <div class="other-cast-num">11</div>
+                        <div class="other-cast-name">もも</div>
+                        <div class="other-cast-role">キャスト</div>
+                    </div>
                 </a>
             </div>
         </section>
     </main>
 
-    <!-- JavaScript -->
-    <script src="../js/particles.js"></script>
-    <script src="../js/animations.js"></script>
-    <script src="../js/cast-profile.js"></script>
+    <footer>© 待合室 藍愛</footer>
+
+    <script>
+        const track = document.getElementById('galleryTrack');
+        const dots = document.querySelectorAll('.dot');
+        const items = document.querySelectorAll('.gallery-item');
+        const counter = document.getElementById('galleryCounter');
+        let current = 0;
+        const total = items.length;
+
+        function goTo(n) {
+            items[current].classList.remove('active');
+            dots[current].classList.remove('active');
+            current = (n + total) % total;
+            track.style.transform = `translateX(-${current * 100}%)`;
+            items[current].classList.add('active');
+            dots[current].classList.add('active');
+            counter.textContent = String(current + 1).padStart(2,'0') + ' / ' + String(total).padStart(2,'0');
+        }
+
+        document.getElementById('nextBtn').addEventListener('click', () => goTo(current + 1));
+        document.getElementById('prevBtn').addEventListener('click', () => goTo(current - 1));
+        dots.forEach(d => d.addEventListener('click', () => goTo(+d.dataset.index)));
+
+        // auto advance
+        setInterval(() => goTo(current + 1), 5000);
+    </script>
 </body>
 </html>
