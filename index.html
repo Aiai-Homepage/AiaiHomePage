@@ -387,120 +387,205 @@
             .cast-card-name { font-size: 1rem; }
         }
 
-        /* ── LOADING SCREEN ── */
+        /* ══════════ LOADING：一本の管に灯がともるまで ══════════ */
         #loader {
             position: fixed; inset: 0; z-index: 9999;
             background: var(--ink);
-            display: flex; flex-direction: column;
-            align-items: center; justify-content: center;
+            display: flex; align-items: center; justify-content: center;
             overflow: hidden;
-            transition: opacity 0.9s cubic-bezier(0.77,0,0.175,1),
-                        visibility 0.9s;
+            transition: opacity .85s cubic-bezier(.77,0,.175,1), visibility .85s;
         }
-        #loader.hidden {
-            opacity: 0; visibility: hidden; pointer-events: none;
-        }
+        #loader.hidden { opacity: 0; visibility: hidden; pointer-events: none; }
+
+        /* 本編と同じ粒子。境目を感じさせないため body::before と同じノイズを敷く */
         #loader::before {
             content: '';
             position: absolute; inset: 0; pointer-events: none;
-            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='300' height='300' filter='url(%23n)' opacity='0.045'/%3E%3C/svg%3E");
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='300' height='300' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
         }
-        .loader-glow {
-            position: absolute; border-radius: 50%;
-            filter: blur(100px); pointer-events: none;
+
+        .ld-glow { position: absolute; border-radius: 50%; filter: blur(120px); pointer-events: none; }
+        .ld-glow-1 {
+            width: 620px; height: 620px;
+            background: radial-gradient(circle, rgba(224,86,122,0.16) 0%, transparent 66%);
+            top: -200px; right: -140px;
+            animation: drift1 22s ease-in-out infinite;
         }
-        .loader-glow-1 {
-            width: 500px; height: 500px;
-            background: radial-gradient(circle, rgba(224,86,122,0.18) 0%, transparent 65%);
-            top: -150px; right: -100px;
-            animation: drift1 10s ease-in-out infinite;
+        .ld-glow-2 {
+            width: 460px; height: 460px;
+            background: radial-gradient(circle, rgba(201,168,106,0.09) 0%, transparent 66%);
+            bottom: -120px; left: -110px;
+            animation: drift2 28s ease-in-out infinite;
         }
-        .loader-glow-2 {
-            width: 400px; height: 400px;
-            background: radial-gradient(circle, rgba(224,86,122,0.12) 0%, transparent 65%);
-            bottom: -100px; left: -80px;
-            animation: drift2 14s ease-in-out infinite;
+
+        /* ヒーローの .hero::before / ::after と同じ縦罫。ローダーが消えても線だけは残って見える */
+        .ld-vline {
+            position: absolute; left: 50%; transform: translateX(-50%);
+            width: 1px; height: 18vh;
+            background: linear-gradient(to bottom, transparent, rgba(224,86,122,.55), transparent);
         }
-        .loader-vline {
-            position: absolute; width: 1px; top: 0; bottom: 0;
-            background: linear-gradient(to bottom,
-                transparent 0%, rgba(224,86,122,0.2) 40%,
-                rgba(224,86,122,0.2) 60%, transparent 100%);
-            left: 50%; transform: translateX(-50%);
+        .ld-vline-top    { top: 0; }
+        .ld-vline-bottom { bottom: 0; }
+
+        /* 濡れた路面の反射（ヒーローの .wet-floor と同じ） */
+        .ld-floor {
+            position: absolute; left: 0; right: 0; bottom: 0; height: 32vh; pointer-events: none;
+            filter: blur(42px); opacity: .7;
+            background: linear-gradient(to top, rgba(224,86,122,.13) 0%, rgba(201,168,106,.05) 44%, transparent 78%);
         }
-        .loader-content {
+
+        .ld-content {
             position: relative; z-index: 1;
-            display: flex; flex-direction: column;
-            align-items: center;
-            transition: opacity .3s ease;
+            display: flex; flex-direction: column; align-items: center;
+            transition: opacity .35s ease;
         }
-        /* ヒーロー側のタイトルと同じ位置に重なっているため、背景より先に消して二重表示を防ぐ */
-        #loader.hidden .loader-content { opacity: 0; }
-        .loader-eyebrow {
+        #loader.hidden .ld-content { opacity: 0; }
+
+        .ld-eyebrow {
             font-family: 'Cormorant Garamond', serif;
-            font-size: 0.62rem; letter-spacing: 0.5em;
-            text-transform: uppercase; color: var(--rose);
-            opacity: 0;
-            animation: loaderFadeUp 0.8s 0.2s forwards;
+            font-size: 0.66rem; letter-spacing: 0.46em;
+            text-transform: uppercase; color: var(--rose-soft);
+            display: flex; align-items: center; gap: 18px;
+            text-shadow: 0 0 9px rgba(224,86,122,.45);
+            animation: ldFadeUp 1s .15s both;
         }
-        .loader-title {
+        .ld-eyebrow span { display: block; width: 36px; height: 1px; background: linear-gradient(90deg, transparent, rgba(235,139,163,.8)); }
+        .ld-eyebrow span:last-child { background: linear-gradient(90deg, rgba(235,139,163,.8), transparent); }
+
+        /* ロゴ：ヒーローのタイトルと同じ管の質感で、先に灯る看板 */
+        .ld-logo {
             font-family: 'Zen Old Mincho', serif;
-            font-size: clamp(2.8rem, 7vw, 5.5rem);
-            font-weight: 900; line-height: 1;
-            letter-spacing: 0.06em;
-            background: linear-gradient(168deg, #fffaf7 0%, var(--core) 42%, #f6c9d4 78%, #e6a9b9 100%);
-            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
-            background-clip: text;
-            margin: 20px 0 16px;
-            opacity: 0;
-            animation: loaderFadeUp 0.9s 0.4s forwards;
+            font-size: clamp(2rem, 4.8vw, 3.15rem);
+            font-weight: 900; line-height: 1.12;
+            letter-spacing: 0.055em;
+            margin-top: 26px;
+            animation: ldFadeUp 1s .3s both;
         }
-        .loader-subtitle {
-            font-family: 'Shippori Mincho', serif;
-            font-size: 0.78rem; letter-spacing: 0.24em;
-            color: var(--paper); opacity: 0;
-            animation: loaderFadeUp 0.8s 0.65s forwards;
+        /* 発光は外側(.ch)、文字の質感は内側(i)。分けないと文字の周りに矩形のにじみが出る */
+        .ld-logo .ch {
+            display: inline-block;
+            filter:
+                drop-shadow(0 0 1px rgba(255,238,241,.9))
+                drop-shadow(0 0 9px rgba(224,86,122,.5))
+                drop-shadow(0 0 30px rgba(224,86,122,.26))
+                drop-shadow(0 0 74px rgba(142,47,71,.22));
+            transition: opacity .07s linear, filter .07s linear;
         }
-        .loader-bar-wrap {
-            margin-top: 54px; width: 220px;
-            opacity: 0;
-            animation: loaderFadeUp 0.6s 0.85s forwards;
+        .ld-logo .ch i {
+            display: inline-block; font-style: normal;
+            background: linear-gradient(168deg, #fffaf7 0%, #ffeef1 42%, #f6c9d4 78%, #e6a9b9 100%);
+            -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent;
         }
-        .loader-bar-track {
-            width: 100%; height: 1px;
-            background: rgba(245,240,232,0.1);
-            position: relative; overflow: hidden;
+        .ld-logo .ch.half {
+            opacity: .6;
+            filter: drop-shadow(0 0 1px rgba(255,238,241,.5)) drop-shadow(0 0 5px rgba(224,86,122,.28))
+                    drop-shadow(0 0 16px rgba(224,86,122,.12));
         }
-        .loader-bar-fill {
-            position: absolute; top: 0; left: 0; height: 100%;
-            background: linear-gradient(to right, var(--rose), var(--rose-soft));
-            width: 0%;
-            box-shadow: 0 0 10px rgba(224,86,122,0.8);
+        .ld-logo .ch.off {
+            opacity: .2;
+            filter: drop-shadow(0 0 1px rgba(224,86,122,.35)) drop-shadow(0 0 3px rgba(142,47,71,.3));
         }
-        .loader-bar-pct {
-            margin-top: 12px;
+
+        /* 進捗そのものがネオン管。幅はヒーローの .neon-tube と同じ */
+        .ld-tube {
+            position: relative;
+            width: min(520px, 68vw); height: 1px;
+            margin-top: 40px;
+            background: rgba(245,240,232,.07);
+            animation: ldFadeUp 1s .35s both;
+        }
+        /* 未点灯の電極。灯が回りきると両端から焼き付く */
+        .ld-cap {
+            position: absolute; top: 50%; width: 3px; height: 3px; margin-top: -1.5px;
+            border-radius: 50%; background: rgba(245,240,232,.16);
+            transition: background .45s ease, box-shadow .45s ease;
+        }
+        .ld-cap-l { left: -1px; }
+        .ld-cap-r { right: -1px; }
+        #loader.charged .ld-cap { background: var(--core); box-shadow: 0 0 6px rgba(224,86,122,.9), 0 0 18px rgba(224,86,122,.45); }
+
+        /* 灯った部分。中心から左右に広がる */
+        .ld-lit {
+            position: absolute; top: 0; left: 50%; transform: translateX(-50%);
+            height: 100%; width: 0%;
+            background: linear-gradient(90deg, rgba(255,238,241,.25), var(--core) 18%, var(--core) 82%, rgba(255,238,241,.25));
+            box-shadow: 0 0 3px rgba(224,86,122,.9), 0 0 11px rgba(224,86,122,.45), 0 0 30px rgba(224,86,122,.16);
+            transition: width .5s cubic-bezier(.22,1,.36,1), opacity .07s linear, box-shadow .28s ease;
+        }
+        /* 電圧が落ちた瞬間 */
+        .ld-lit.dip { opacity: .26; box-shadow: 0 0 2px rgba(224,86,122,.35); }
+        /* 満ちた瞬間の焼き付き */
+        .ld-lit.surge {
+            box-shadow: 0 0 8px var(--core), 0 0 26px rgba(224,86,122,.95),
+                        0 0 72px rgba(224,86,122,.55), 0 0 150px rgba(224,86,122,.28);
+        }
+
+        /* 灯が回りきった瞬間、管のまわりの空気ごと光る */
+        .ld-bloom {
+            position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%);
+            width: min(780px, 92vw); height: 190px;
+            pointer-events: none; opacity: 0;
+            background: radial-gradient(ellipse at center, rgba(224,86,122,.3) 0%, rgba(224,86,122,.11) 36%, transparent 72%);
+            filter: blur(26px);
+            transition: opacity .55s ease;
+        }
+        #loader.charged .ld-bloom { opacity: 1; }
+        .ld-floor { transition: opacity .6s ease; }
+        #loader.charged .ld-floor { opacity: 1; }
+
+        /* 管を走る電流 */
+        .ld-sweep {
+            position: absolute; top: -2px; height: 5px; width: 22%; left: -22%;
+            background: radial-gradient(closest-side ellipse at center, rgba(255,238,241,.6), transparent);
+            filter: blur(1.5px); pointer-events: none;
+            animation: ldSweep 2.6s linear infinite;
+        }
+        #loader.charged .ld-sweep { animation: none; opacity: 0; }
+        @keyframes ldSweep {
+            0%   { left: -22%; opacity: 0; }
+            14%  { opacity: .9; }
+            86%  { opacity: .9; }
+            100% { left: 100%; opacity: 0; }
+        }
+
+        .ld-meta {
+            width: min(520px, 68vw); margin-top: 20px;
+            display: flex; align-items: baseline; justify-content: space-between;
+            animation: ldFadeUp .9s .6s both;
+        }
+        .ld-status {
             font-family: 'Cormorant Garamond', serif;
-            font-size: 0.62rem; letter-spacing: 0.35em;
-            color: var(--rose); opacity: 0.55;
-            text-align: right;
+            font-size: 0.6rem; letter-spacing: 0.34em;
+            text-transform: uppercase; color: var(--paper); opacity: .26;
         }
-        .loader-diamond {
-            width: 5px; height: 5px;
-            background: var(--rose);
-            transform: rotate(45deg);
-            margin: 24px auto 0;
-            opacity: 0;
-            box-shadow: 0 0 12px var(--rose);
-            animation: loaderFadeUp 0.5s 0.7s forwards,
-                       loaderPulse 2s 1.5s ease-in-out infinite;
+        .ld-pct {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 0.66rem; letter-spacing: 0.22em;
+            color: var(--rose-soft); opacity: .8;
+            font-variant-numeric: tabular-nums;
+            text-shadow: 0 0 10px rgba(224,86,122,.45);
         }
-        @keyframes loaderFadeUp {
-            from { opacity: 0; transform: translateY(14px); }
+
+        /* ── 灯が満ちたあとの暗転。看板だけが最後まで残って落ちる ── */
+        /* 導入アニメ（ldFadeUp）が opacity を握っている要素は JS 側でフェードさせる */
+        #loader.dark { background: #000; transition: background-color 1.2s ease, opacity .8s cubic-bezier(.77,0,.175,1), visibility .8s; }
+        #loader.dark .ld-glow,
+        #loader.dark .ld-vline,
+        #loader.dark .ld-floor { opacity: 0; transition: opacity 1.1s ease; }
+
+        @keyframes ldFadeUp {
+            from { opacity: 0; transform: translateY(16px); }
             to   { opacity: 1; transform: translateY(0); }
         }
-        @keyframes loaderPulse {
-            0%,100% { opacity:0.5; box-shadow: 0 0 8px var(--rose); }
-            50%     { opacity:1;   box-shadow: 0 0 22px var(--rose), 0 0 44px rgba(224,86,122,0.25); }
+
+        @media (max-width: 480px) {
+            .ld-eyebrow { font-size: 0.58rem; letter-spacing: 0.32em; gap: 12px; }
+            .ld-eyebrow span { width: 24px; }
+            .ld-tube { margin-top: 38px; }
+        }
+        @media (prefers-reduced-motion: reduce) {
+            .ld-glow, .ld-sweep { animation: none; }
+            .ld-sweep { opacity: 0; }
         }
 
         /* ══════════ 部屋が切り替わる遷移（カードクリック） ══════════ */
@@ -731,21 +816,26 @@
 </head>
 <body>
 
-    <!-- ── LOADING SCREEN ── -->
+    <!-- ── LOADING：一本の管に灯がともるまで ── -->
     <div id="loader">
-        <div class="loader-glow loader-glow-1"></div>
-        <div class="loader-glow loader-glow-2"></div>
-        <div class="loader-vline"></div>
-        <div class="loader-content">
-            <div class="loader-eyebrow">VRChat Concept Event</div>
-            <div class="loader-title">待合室藍愛</div>
-            <div class="loader-subtitle">君と私の交わることのない一夜の物語</div>
-            <div class="loader-diamond"></div>
-            <div class="loader-bar-wrap">
-                <div class="loader-bar-track">
-                    <div class="loader-bar-fill" id="loaderBar"></div>
-                </div>
-                <div class="loader-bar-pct" id="loaderPct">0%</div>
+        <div class="ld-glow ld-glow-1"></div>
+        <div class="ld-glow ld-glow-2"></div>
+        <div class="ld-vline ld-vline-top"></div>
+        <div class="ld-vline ld-vline-bottom"></div>
+        <div class="ld-floor"></div>
+        <div class="ld-content">
+            <p class="ld-eyebrow"><span></span>VRChat Concept Event<span></span></p>
+            <div class="ld-logo" id="ldLogo">待合室藍愛</div>
+            <div class="ld-tube">
+                <i class="ld-cap ld-cap-l"></i>
+                <i class="ld-cap ld-cap-r"></i>
+                <div class="ld-bloom"></div>
+                <div class="ld-lit" id="ldLit"></div>
+                <div class="ld-sweep"></div>
+            </div>
+            <div class="ld-meta">
+                <span class="ld-status">Now Opening</span>
+                <span class="ld-pct" id="ldPct">0%</span>
             </div>
         </div>
     </div>
@@ -990,10 +1080,13 @@
 
     <script>
     (function() {
-        const loader  = document.getElementById('loader');
-        const bar     = document.getElementById('loaderBar');
-        const pct     = document.getElementById('loaderPct');
-        const SEEN_KEY = 'aiai_visited';
+        const loader = document.getElementById('loader');
+        const lit    = document.getElementById('ldLit');
+        const pctEl  = document.getElementById('ldPct');
+        const logo   = document.getElementById('ldLogo');
+        const SEEN_KEY  = 'aiai_visited';
+        const reduced   = matchMedia('(prefers-reduced-motion: reduce)').matches;
+        const wait = (ms) => new Promise(r => setTimeout(r, ms));
 
         // ── 2回目以降は即座に非表示にしてスキップ ──
         if (sessionStorage.getItem(SEEN_KEY)) {
@@ -1006,47 +1099,122 @@
         // 初回訪問フラグをセット（タブを閉じるまで有効）
         sessionStorage.setItem(SEEN_KEY, '1');
 
+        // 読み込み中はスクロール禁止
+        document.body.style.overflow = 'hidden';
+
+        // ── ロゴは一文字ずつの管として扱い、点きかけて落ち、二度目で安定する ──
+        logo.innerHTML = [...logo.textContent].map(c => `<span class="ch"><i>${c}</i></span>`).join('');
+        const LCH = [...logo.querySelectorAll('.ch')];
+        function setLogo(cls) {
+            LCH.forEach(c => c.classList.remove('half', 'off'));
+            if (cls) LCH.forEach(c => c.classList.add(cls));
+        }
+        setLogo('off');
+        (async function igniteLogo() {
+            if (reduced) { setLogo(null); return; }
+            await wait(420);
+            setLogo('half'); await wait(90);
+            setLogo('off');  await wait(120);
+            setLogo(null);   await wait(70);
+            setLogo('off');  await wait(60);
+            setLogo('half'); await wait(50);
+            setLogo(null);
+        })();
+
+        const t0 = performance.now();
+        const MIN_SHOW = 1700;   // 導入アニメが読み切れる最低表示時間
         let progress  = 0;
         let dismissed = false;
 
-        // ── プログレスバーアニメーション ──
+        // 導入アニメが opacity を固定しているので、現在値で止めてから transition に渡す
+        function fade(el, dur, delay) {
+            el.style.animation = 'none';
+            el.style.opacity = getComputedStyle(el).opacity;
+            void el.offsetWidth;
+            el.style.transition = 'opacity ' + dur + 'ms ' + delay + 'ms ease';
+            el.style.opacity = '0';
+        }
+
+        function paint() {
+            lit.style.width = progress + '%';
+            pctEl.textContent = Math.floor(progress) + '%';
+        }
+
+        // ── 管に灯が回っていく ──
         function tick() {
             if (dismissed) return;
             const step = progress < 70 ? (Math.random() * 4 + 2)
                        : progress < 90 ? (Math.random() * 1.5 + 0.5)
                        : 0.3;
             progress = Math.min(progress + step, 97);
-            bar.style.width = progress + '%';
-            pct.textContent = Math.floor(progress) + '%';
+            paint();
             if (progress < 97) {
                 setTimeout(tick, progress < 70 ? 60 : 100);
             }
         }
-        setTimeout(tick, 900);
+        setTimeout(tick, 700);
 
-        // ── ローダーを閉じる ──
-        function dismiss() {
+        // ── 充填中、ときどき電圧が落ちる（本編のネオン明滅と同じ語彙） ──
+        (async function unstable() {
+            if (reduced) return;
+            while (!dismissed) {
+                await wait(700 + Math.random() * 1500);
+                if (dismissed) return;
+                const withLogo = Math.random() < .4;
+                lit.classList.add('dip');
+                if (withLogo) setLogo('half');
+                await wait(40 + Math.random() * 60);
+                lit.classList.remove('dip');
+                if (withLogo) setLogo(null);
+            }
+        })();
+
+        // ── 灯が満ちる → 焼き付く → ゆっくり暗転 → ホームが現れる ──
+        async function dismiss() {
             if (dismissed) return;
             dismissed = true;
-            bar.style.transition = 'width 0.3s ease';
-            bar.style.width = '100%';
-            pct.textContent = '100%';
-            setTimeout(() => {
-                loader.classList.add('hidden');
-                document.body.style.overflow = '';
-                // ローダー自身のタイトル文字とヒーロー側の文字が同じ位置に重なっているため、
-                // フェード中（opacity 0.9s、#loader の transition と同じ長さ）に点灯を始めると
-                // 二重に文字が透けて見えてしまう。フェードが完全に終わってから点灯させる
-                setTimeout(() => document.dispatchEvent(new Event('aiai:heroReveal')), 900);
-            }, 350);
+            lit.classList.remove('dip');
+            setLogo(null);
+            progress = 100;
+            paint();
+            await wait(280);
+
+            // 満ちた瞬間に一度沈み、二度目で管とロゴが焼き付く
+            if (!reduced) {
+                lit.classList.add('dip');    setLogo('half'); await wait(70);
+                lit.classList.remove('dip'); setLogo(null);   await wait(60);
+                lit.classList.add('dip');    setLogo('half'); await wait(50);
+                lit.classList.remove('dip'); setLogo(null);
+            }
+            lit.classList.add('surge');
+            loader.classList.add('charged');
+            await wait(reduced ? 220 : 620);
+
+            // 暗転。管と数字が先に落ち、看板だけが最後まで残る
+            loader.classList.add('dark');
+            fade(document.querySelector('.ld-eyebrow'), 800, 0);
+            fade(document.querySelector('.ld-tube'),    800, 0);
+            fade(document.querySelector('.ld-meta'),    800, 0);
+            fade(logo, reduced ? 300 : 1150, reduced ? 0 : 320);
+            await wait(reduced ? 320 : 1500);
+
+            // 完全な暗闇からホームへ。#loader は真っ黒なのでフェードは目に見えない
+            loader.classList.add('hidden');
+            document.body.style.overflow = '';
+            setTimeout(() => document.dispatchEvent(new Event('aiai:heroReveal')), reduced ? 60 : 320);
         }
 
-        // ページ読み込み完了 or 最大2.8秒で消す
-        window.addEventListener('load', () => setTimeout(dismiss, 300));
-        setTimeout(dismiss, 2800);
+        // 読み込みが速すぎても、灯が回りきる前に消えないようにする
+        function requestDismiss() {
+            if (dismissed) return;
+            const left = MIN_SHOW - (performance.now() - t0);
+            if (left > 0) { setTimeout(requestDismiss, left); return; }
+            dismiss();
+        }
 
-        // 読み込み中はスクロール禁止
-        document.body.style.overflow = 'hidden';
+        // ページ読み込み完了 or 最大3.4秒で消す
+        window.addEventListener('load', () => setTimeout(requestDismiss, 250));
+        setTimeout(requestDismiss, 3400);
     })();
     </script>
 
