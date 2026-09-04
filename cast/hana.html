@@ -658,6 +658,14 @@
         var veil = document.getElementById('arrivalVeil');
         if (!veil) return;
 
+        /* 戻るボタンで bfcache から復元されたとき、ヴェールとスクロール禁止が
+           残っていることがあるので解除する（通常の読み込みでは何もしない） */
+        window.addEventListener('pageshow', function(e) {
+            if (!e.persisted) return;
+            veil.classList.remove('show', 'out');
+            document.body.style.overflow = '';
+        });
+
         veil.classList.add('show');
         document.body.style.overflow = 'hidden';
 
