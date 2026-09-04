@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#09070d">
     <title>待合室藍愛 | 君と私の交わることのない一夜の物語</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -22,7 +23,9 @@
         }
 
         *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-        html { scroll-behavior: smooth; }
+        /* 背景を html にも置く。ルートキャンバスの既定色は白で、iOS Safari は
+           ビューポートの組み直しやレイヤ破棄の一瞬にこれを描くことがある */
+        html { scroll-behavior: smooth; background-color: var(--ink); }
 
         body {
             background-color: var(--ink);
@@ -68,6 +71,8 @@
             pointer-events: none; transform: translate(-50%, -50%); mix-blend-mode: screen;
             background: radial-gradient(circle, rgba(224,86,122,0.1) 0%, rgba(201,168,106,0.05) 36%, transparent 66%);
         }
+
+        @media (hover: none) { #cursorGlow { display: none; } }
 
         /* navigation */
         nav {
@@ -399,7 +404,9 @@
             overflow: hidden;
             transition: opacity .85s cubic-bezier(.77,0,.175,1), visibility .85s;
         }
-        #loader.hidden { opacity: 0; visibility: hidden; pointer-events: none; }
+        /* 暗転しきったあとの撤去。全画面レイヤのクロスフェードはモバイルで
+           合成が乱れやすいので、真っ黒の状態から一息に消す */
+        #loader.hidden { display: none; }
 
         /* 本編と同じ粒子。境目を感じさせないため body::before と同じノイズを敷く */
         #loader::before {
@@ -443,7 +450,6 @@
             display: flex; flex-direction: column; align-items: center;
             transition: opacity .35s ease;
         }
-        #loader.hidden .ld-content { opacity: 0; }
 
         .ld-eyebrow {
             font-family: 'Cormorant Garamond', serif;
@@ -1202,10 +1208,14 @@
             fade(logo, reduced ? 300 : 1150, reduced ? 0 : 320);
             await wait(reduced ? 320 : 1500);
 
-            // 完全な暗闇からホームへ。#loader は真っ黒なのでフェードは目に見えない
-            loader.classList.add('hidden');
+            // スクロール解放が先。iOS はここでビューポートを組み直すことがあるが、
+            // まだ真っ黒な #loader が覆っているので画面には出ない
             document.body.style.overflow = '';
-            setTimeout(() => document.dispatchEvent(new Event('aiai:heroReveal')), reduced ? 60 : 320);
+            await wait(140);
+
+            // 完全な暗闇からホームへ
+            loader.classList.add('hidden');
+            document.dispatchEvent(new Event('aiai:heroReveal'));
         }
 
         // 読み込みが速すぎても、灯が回りきる前に消えないようにする
@@ -1230,13 +1240,18 @@
 
         /* ══════════ カーソル追従グロー ══════════ */
         const glow = document.getElementById('cursorGlow');
-        let gx = innerWidth / 2, gy = innerHeight / 2, cx = gx, cy = gy;
-        addEventListener('mousemove', e => { gx = e.clientX; gy = e.clientY; });
-        (function loop() {
-            cx += (gx - cx) * .11; cy += (gy - cy) * .11;
-            glow.style.left = cx + 'px'; glow.style.top = cy + 'px';
-            requestAnimationFrame(loop);
-        })();
+        /* タッチ端末では mousemove が来ず中央に居座るだけなので、ループごと止める */
+        if (matchMedia('(hover: hover)').matches) {
+            let gx = innerWidth / 2, gy = innerHeight / 2, cx = gx, cy = gy;
+            addEventListener('mousemove', e => { gx = e.clientX; gy = e.clientY; });
+            (function loop() {
+                cx += (gx - cx) * .11; cy += (gy - cy) * .11;
+                glow.style.left = cx + 'px'; glow.style.top = cy + 'px';
+                requestAnimationFrame(loop);
+            })();
+        } else {
+            glow.remove();
+        }
 
         /* ══════════ タイトルのネオン明滅（点灯 → 稀にちらつく） ══════════ */
         const titleEl = document.getElementById('heroTitle');
