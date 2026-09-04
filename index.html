@@ -8,14 +8,14 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css">
     <style>
         :root {
-            --ink:        #0a080c;
-            --ink-soft:   #120e16;
+            --ink:        #09070d;
+            --ink-soft:   #120d16;
             --paper:      #f5f0e8;
-            --pink:       #d4607a;
-            --pink-light: #e8849a;
-            --pink-pale:  #f0b0c0;
-            --pink-glow:  rgba(212, 96, 122, 0.18);
-            --pink-faint: rgba(212, 96, 122, 0.07);
+            /* 上品なネオン：彩度を落としたローズ＋温白のコア（純白は使わない） */
+            --core:       #ffeef1;
+            --rose:       #e0567a;
+            --rose-soft:  #eb8ba3;
+            --rose-deep:  #8e2f47;
             --divider:    rgba(245, 240, 232, 0.07);
         }
 
@@ -37,42 +37,54 @@
         }
 
         /* ambient glows */
-        .ambient { position: fixed; border-radius: 50%; filter: blur(130px); pointer-events: none; z-index: 0; }
+        .ambient { position: fixed; border-radius: 50%; filter: blur(140px); pointer-events: none; z-index: 0; }
         .ambient-1 {
-            width: 700px; height: 700px;
-            background: radial-gradient(circle, rgba(212,96,122,0.14) 0%, transparent 65%);
-            top: -250px; right: -150px;
-            animation: drift1 20s ease-in-out infinite;
+            width: 820px; height: 820px;
+            background: radial-gradient(circle, rgba(224,86,122,0.13) 0%, transparent 66%);
+            top: -280px; right: -180px;
+            animation: drift1 22s ease-in-out infinite;
         }
         .ambient-2 {
-            width: 500px; height: 500px;
-            background: radial-gradient(circle, rgba(212,96,122,0.09) 0%, transparent 65%);
-            bottom: 10vh; left: -100px;
-            animation: drift2 26s ease-in-out infinite;
+            width: 560px; height: 560px;
+            background: radial-gradient(circle, rgba(201,168,106,0.08) 0%, transparent 66%);
+            bottom: 6vh; left: -140px;
+            animation: drift2 28s ease-in-out infinite;
         }
         .ambient-3 {
-            width: 400px; height: 400px;
-            background: radial-gradient(circle, rgba(212,96,122,0.06) 0%, transparent 65%);
-            top: 50vh; left: 40%;
-            animation: drift3 32s ease-in-out infinite;
+            width: 460px; height: 460px;
+            background: radial-gradient(circle, rgba(120,60,110,0.09) 0%, transparent 66%);
+            top: 46vh; left: 44%;
+            animation: drift3 34s ease-in-out infinite;
         }
         @keyframes drift1 { 0%,100%{transform:translate(0,0)} 50%{transform:translate(-50px,40px)} }
         @keyframes drift2 { 0%,100%{transform:translate(0,0)} 50%{transform:translate(40px,-50px)} }
         @keyframes drift3 { 0%,100%{transform:translate(0,0)} 33%{transform:translate(30px,30px)} 66%{transform:translate(-30px,10px)} }
+
+        /* カーソル追従グロー */
+        #cursorGlow {
+            position: fixed; z-index: 1; width: 600px; height: 600px; border-radius: 50%;
+            pointer-events: none; transform: translate(-50%, -50%); mix-blend-mode: screen;
+            background: radial-gradient(circle, rgba(224,86,122,0.1) 0%, rgba(201,168,106,0.05) 36%, transparent 66%);
+        }
 
         /* navigation */
         nav {
             position: fixed; top: 0; left: 0; right: 0; z-index: 200;
             display: flex; align-items: center; justify-content: space-between;
             padding: 22px 48px;
-            background: linear-gradient(to bottom, rgba(10,8,12,0.92) 0%, transparent 100%);
+            background: linear-gradient(to bottom, rgba(9,7,13,0.94) 0%, transparent 100%);
         }
         .nav-logo {
+            position: relative; display: inline-block;
             font-family: 'Cormorant Garamond', serif;
             font-size: 1.05rem; font-style: italic;
-            color: var(--pink-light); letter-spacing: 0.12em;
-            text-decoration: none;
+            color: var(--rose-soft); letter-spacing: 0.12em;
+            text-decoration: none; text-shadow: 0 0 10px rgba(224,86,122,0.35);
+            -webkit-user-select: none; user-select: none; -webkit-touch-callout: none; touch-action: none;
+            cursor: pointer;
         }
+        .nav-logo.pressing { text-shadow: 0 0 8px rgba(224,86,122,0.8), 0 0 22px rgba(224,86,122,0.45); }
+        .nav-right { display: flex; align-items: center; gap: 22px; }
         .nav-x {
             display: flex; align-items: center; gap: 8px;
             color: var(--paper); opacity: 0.45;
@@ -83,7 +95,7 @@
 
         /* HERO */
         .hero {
-            position: relative; z-index: 1;
+            position: relative; z-index: 2;
             min-height: 100vh;
             display: flex; flex-direction: column;
             align-items: center; justify-content: center;
@@ -94,7 +106,7 @@
         .hero::before, .hero::after {
             content: '';
             position: absolute; left: 50%; transform: translateX(-50%);
-            width: 1px; background: linear-gradient(to bottom, transparent, var(--pink), transparent);
+            width: 1px; background: linear-gradient(to bottom, transparent, rgba(224,86,122,.75), transparent);
             pointer-events: none;
         }
         .hero::before { top: 0; height: 18vh; }
@@ -102,35 +114,81 @@
 
         .hero-eyebrow {
             font-family: 'Cormorant Garamond', serif;
-            font-size: 0.68rem; letter-spacing: 0.45em;
-            text-transform: uppercase; color: var(--pink);
-            opacity: 0.8; margin-bottom: 28px;
+            font-size: 0.66rem; letter-spacing: 0.46em;
+            text-transform: uppercase; color: var(--rose-soft);
+            opacity: 1; margin-bottom: 30px;
             display: flex; align-items: center; gap: 18px;
+            text-shadow: 0 0 9px rgba(224,86,122,.45);
             animation: fadeUp 1s 0.2s both;
         }
-        .hero-eyebrow span { display: block; width: 36px; height: 1px; background: var(--pink); opacity: 0.6; }
+        .hero-eyebrow span { display: block; width: 36px; height: 1px; background: linear-gradient(90deg, transparent, rgba(235,139,163,.8)); }
+        .hero-eyebrow span:last-child { background: linear-gradient(90deg, rgba(235,139,163,.8), transparent); }
 
         .hero-title {
             font-family: 'Zen Old Mincho', serif;
-            font-size: clamp(3.2rem, 8vw, 7.5rem);
+            font-size: clamp(3.2rem, 8vw, 7.4rem);
             font-weight: 900; line-height: 1.05;
-            letter-spacing: 0.05em;
-            margin-bottom: 20px;
+            letter-spacing: 0.055em;
+            margin-bottom: 22px;
             animation: fadeUp 1s 0.4s both;
+            position: relative;
         }
-        .hero-title-glow {
-            background: linear-gradient(135deg, var(--paper) 40%, var(--pink-pale) 100%);
-            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
-            background-clip: text;
+        /* 管の「電源のうなり」= ほぼ気づかない明るさの揺れ */
+        .hero-title-glow { display: inline-block; animation: hum 5.2s ease-in-out infinite; }
+        @keyframes hum { 0%,100%{filter:brightness(1)} 38%{filter:brightness(1.018)} 64%{filter:brightness(.986)} }
+
+        /* 発光は外側(.ch)、文字の質感とクリップは内側(i)。分けないと文字の周りに矩形のにじみが出る */
+        .hero-title-glow .ch i {
+            display: inline-block; font-style: normal;
+            background: linear-gradient(168deg, #fffaf7 0%, #ffeef1 42%, #f6c9d4 78%, #e6a9b9 100%);
+            -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent;
         }
+        .hero-title-glow .ch {
+            display: inline-block;
+            filter:
+                drop-shadow(0 0 1px rgba(255,238,241,.9))
+                drop-shadow(0 0 9px rgba(224,86,122,.5))
+                drop-shadow(0 0 30px rgba(224,86,122,.26))
+                drop-shadow(0 0 74px rgba(142,47,71,.22));
+            transition: opacity .07s linear, filter .07s linear;
+        }
+        /* 半減（電圧が落ちた状態） */
+        .hero-title-glow .ch.half {
+            opacity: .6;
+            filter: drop-shadow(0 0 1px rgba(255,238,241,.5)) drop-shadow(0 0 5px rgba(224,86,122,.28))
+                    drop-shadow(0 0 16px rgba(224,86,122,.12));
+        }
+        /* 消灯（未点灯のガラス管が残る） */
+        .hero-title-glow .ch.off {
+            opacity: .2;
+            filter: drop-shadow(0 0 1px rgba(224,86,122,.35)) drop-shadow(0 0 3px rgba(142,47,71,.3));
+        }
+        .neon-tube.dip { opacity: .28; box-shadow: 0 0 2px rgba(224,86,122,.35); }
+        .neon-tube { transition: opacity .07s linear, box-shadow .07s linear; }
 
         .hero-subtitle {
             font-family: 'Shippori Mincho', serif;
             font-size: clamp(0.8rem, 1.5vw, 1rem);
-            color: var(--paper); opacity: 0.45;
-            letter-spacing: 0.22em;
-            margin-bottom: 60px;
+            color: var(--paper); opacity: 0.5;
+            letter-spacing: 0.24em;
+            margin-bottom: 46px;
             animation: fadeUp 1s 0.6s both;
+            text-shadow: 0 0 18px rgba(224,86,122,.3);
+        }
+
+        /* ネオン管：タイトル下の細い光の一本 */
+        .tube-wrap { position: relative; display: flex; align-items: center; justify-content: center; animation: fadeUp 1s .8s both; }
+        .neon-tube {
+            position: relative; width: min(520px, 68vw); height: 1px;
+            background: linear-gradient(90deg, transparent, var(--core) 12%, var(--core) 88%, transparent);
+            box-shadow: 0 0 3px rgba(224,86,122,.9), 0 0 11px rgba(224,86,122,.45), 0 0 30px rgba(224,86,122,.16);
+        }
+
+        /* 濡れた路面のような、床への反射 */
+        .wet-floor {
+            position: absolute; left: 0; right: 0; bottom: 0; height: 32vh; pointer-events: none;
+            filter: blur(42px); opacity: .7;
+            background: linear-gradient(to top, rgba(224,86,122,.13) 0%, rgba(201,168,106,.05) 44%, transparent 78%);
         }
 
         .hero-scroll {
@@ -146,29 +204,36 @@
         .hero-scroll i { animation: bounce 2s ease-in-out infinite; }
         @keyframes bounce { 0%,100%{transform:translateY(0)} 50%{transform:translateY(6px)} }
         @keyframes fadeUpScroll {
-            from {
-                opacity: 0;
-                transform: translate(-50%, 24px);
-            }
-            to {
-                opacity: 1;
-                transform: translate(-50%, 0);
-            }
+            from { opacity: 0; transform: translate(-50%, 24px); }
+            to   { opacity: 1; transform: translate(-50%, 0); }
         }
         @keyframes fadeUp { from{opacity:0;transform:translateY(24px)} to{opacity:1;transform:translateY(0)} }
 
         /* SECTION COMMON */
-        section { position: relative; z-index: 1; }
-        .section-inner { max-width: 1100px; margin: 0 auto; padding: 100px 48px; }
+        section { position: relative; z-index: 2; }
+        .section-inner { max-width: 1100px; margin: 0 auto; padding: 104px 48px; }
         .section-label {
             font-family: 'Cormorant Garamond', serif;
-            font-size: 0.65rem; letter-spacing: 0.45em;
-            text-transform: uppercase; color: var(--pink);
+            font-size: 0.64rem; letter-spacing: 0.46em;
+            text-transform: uppercase; color: var(--rose-soft);
             display: flex; align-items: center; gap: 16px;
-            margin-bottom: 52px;
+            margin-bottom: 54px;
+            text-shadow: 0 0 9px rgba(224,86,122,.4);
         }
-        .section-label::before { content: ''; display: block; width: 36px; height: 1px; background: var(--pink); }
-        .section-label::after  { content: ''; display: block; flex: 1; height: 1px; background: linear-gradient(to right, rgba(212,96,122,0.3), transparent); }
+        .section-label::before { content: ''; display: block; width: 34px; height: 1px; background: var(--core); box-shadow: 0 0 4px rgba(224,86,122,.85), 0 0 12px rgba(224,86,122,.35); }
+        .section-label::after  { content: ''; display: block; flex: 1; height: 1px; background: linear-gradient(to right, rgba(224,86,122,.32), transparent); }
+
+        /* スクロールで灯る演出 */
+        .seq { opacity: .16; filter: saturate(.3); transition: opacity .1s, filter .1s; }
+        .seq.lit { animation: ignite 1.1s ease-out forwards; }
+        @keyframes ignite {
+            0%{opacity:.16;filter:saturate(.3)}
+            18%{opacity:.9;filter:saturate(1.1)}
+            26%{opacity:.35;filter:saturate(.6)}
+            38%{opacity:1;filter:saturate(1)}
+            46%{opacity:.7}
+            100%{opacity:1;filter:saturate(1)}
+        }
 
         /* EVENT DETAILS */
         .details-section { border-top: 1px solid var(--divider); }
@@ -178,23 +243,24 @@
             gap: 2px;
         }
         .detail-item {
-            padding: 32px 28px;
+            padding: 34px 28px;
             border: 1px solid var(--divider);
-            background: var(--pink-faint);
+            background: rgba(224,86,122,.045);
             position: relative; overflow: hidden;
-            transition: border-color 0.4s, background 0.4s;
+            transition: border-color 0.4s, background 0.4s, box-shadow .4s;
         }
         .detail-item::before {
             content: ''; position: absolute; top: 0; left: 0;
-            width: 2px; height: 0; background: var(--pink);
-            transition: height 0.4s ease;
+            width: 1px; height: 0; background: var(--core);
+            box-shadow: 0 0 5px rgba(224,86,122,.9);
+            transition: height 0.45s ease;
         }
-        .detail-item:hover { border-color: rgba(212,96,122,0.3); background: rgba(212,96,122,0.1); }
+        .detail-item:hover { border-color: rgba(224,86,122,.32); background: rgba(224,86,122,.085); box-shadow: 0 0 26px rgba(224,86,122,.1); }
         .detail-item:hover::before { height: 100%; }
-        .detail-icon { font-size: 0.9rem; color: var(--pink); opacity: 0.7; margin-bottom: 14px; }
-        .detail-key  { font-size: 0.6rem; letter-spacing: 0.25em; text-transform: uppercase; color: var(--pink); opacity: 0.6; margin-bottom: 8px; }
-        .detail-val  { font-family: 'Shippori Mincho', serif; font-size: 0.9rem; line-height: 1.7; color: var(--paper); opacity: 0.8; }
-        .detail-val a { color: var(--pink-light); text-decoration: none; transition: opacity 0.2s; }
+        .detail-icon { font-size: 0.88rem; color: var(--rose-soft); opacity: 1; margin-bottom: 15px; text-shadow: 0 0 10px rgba(224,86,122,.5); }
+        .detail-key  { font-size: 0.6rem; letter-spacing: 0.26em; text-transform: uppercase; color: var(--rose); opacity: 0.75; margin-bottom: 9px; }
+        .detail-val  { font-family: 'Shippori Mincho', serif; font-size: 0.9rem; line-height: 1.75; color: var(--paper); opacity: 0.82; }
+        .detail-val a { color: var(--rose-soft); text-decoration: none; transition: opacity 0.2s; }
         .detail-val a:hover { opacity: 0.7; }
 
         /* CAST GRID */
@@ -204,57 +270,59 @@
             grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
             gap: 3px;
         }
-        .cast-card-link { text-decoration: none; color: inherit; display: block; }
+        .cast-card-link { text-decoration: none; color: inherit; display: block; opacity: .13; filter: saturate(.28); }
+        .cast-card-link.lit { animation: ignite 1s ease-out forwards; }
         .cast-card {
             position: relative; overflow: hidden;
             background: var(--ink-soft);
             border: 1px solid var(--divider);
-            transition: border-color 0.4s, box-shadow 0.4s;
+            transition: border-color 0.45s, box-shadow 0.45s;
             aspect-ratio: 2/3; cursor: pointer;
         }
         .cast-card:hover {
-            border-color: rgba(212,96,122,0.5);
-            box-shadow: 0 0 40px rgba(212,96,122,0.12);
+            border-color: rgba(224,86,122,.5);
+            box-shadow: 0 0 30px rgba(224,86,122,.18);
         }
         .cast-img-wrap { position: absolute; inset: 0; }
         .cast-img-wrap img {
             width: 100%; height: 100%; object-fit: contain;
-            transition: transform 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+            transition: transform 0.9s cubic-bezier(0.25, 0.46, 0.45, 0.94);
         }
-        .cast-card:hover .cast-img-wrap img { transform: scale(1.05); }
-        /* pink shimmer */
+        .cast-card:hover .cast-img-wrap img { transform: scale(1.045); }
         .cast-card::before {
             content: ''; position: absolute; inset: 0; z-index: 1;
-            background: linear-gradient(160deg, rgba(212,96,122,0.25) 0%, transparent 55%);
-            opacity: 0; transition: opacity 0.4s;
+            background: linear-gradient(158deg, rgba(224,86,122,.2) 0%, transparent 56%);
+            opacity: 0; transition: opacity 0.45s;
         }
         .cast-card:hover::before { opacity: 1; }
-        /* bottom fade always present */
         .cast-card::after {
             content: ''; position: absolute; inset: 0; z-index: 1;
-            background: linear-gradient(to top, rgba(10,8,12,0.85) 0%, rgba(10,8,12,0.2) 35%, transparent 60%);
+            background: linear-gradient(to top, rgba(9,7,13,.86) 0%, rgba(9,7,13,.2) 35%, transparent 60%);
         }
         .cast-card-overlay {
             position: absolute; bottom: 0; left: 0; right: 0; z-index: 2;
-            padding: 48px 22px 24px;
+            padding: 50px 22px 24px;
         }
         .cast-card-name {
             font-family: 'Zen Old Mincho', serif;
             font-size: 1.25rem; font-weight: 700;
-            color: var(--paper); letter-spacing: 0.05em; margin-bottom: 5px;
-            text-shadow: 0 2px 12px rgba(0,0,0,0.6);
+            color: var(--paper); letter-spacing: 0.05em; margin-bottom: 6px;
+            text-shadow: 0 2px 12px rgba(0,0,0,0.65);
+            transition: all .4s;
         }
-        .cast-card:hover .cast-card-name { color: var(--pink-pale); }
+        .cast-card:hover .cast-card-name { color: #fff2f4; text-shadow: 0 0 10px rgba(224,86,122,.75), 0 2px 12px rgba(0,0,0,.6); }
         .cast-card-role {
-            font-size: 0.62rem; letter-spacing: 0.28em;
-            color: var(--pink-light); opacity: 0.8;
+            font-size: 0.6rem; letter-spacing: 0.3em;
+            color: var(--rose-soft); opacity: 0.75;
         }
         .cast-card-num {
             position: absolute; top: 16px; right: 18px; z-index: 3;
             font-family: 'Cormorant Garamond', serif;
             font-size: 0.7rem; letter-spacing: 0.2em;
-            color: var(--paper); opacity: 0.2;
+            color: var(--paper); opacity: 0.22;
+            transition: all .4s;
         }
+        .cast-card:hover .cast-card-num { opacity: .9; color: #ffe4e9; text-shadow: 0 0 8px rgba(224,86,122,.7); }
 
         /* ABOUT */
         .about-section { border-top: 1px solid var(--divider); }
@@ -263,36 +331,37 @@
             font-family: 'Cormorant Garamond', serif;
             font-size: clamp(3rem, 5vw, 5rem);
             font-weight: 300; font-style: italic;
-            line-height: 1; color: var(--pink); opacity: 0.12;
+            line-height: 1; color: var(--rose); opacity: 0.14;
             user-select: none;
         }
-        .about-text p { font-size: 0.95rem; line-height: 2.2; color: var(--paper); opacity: 0.65; margin-bottom: 18px; }
+        .about-text p { font-size: 0.95rem; line-height: 2.25; color: var(--paper); opacity: 0.68; margin-bottom: 18px; }
         .about-text p:last-child { margin-bottom: 0; }
         .about-cta {
             display: inline-flex; align-items: center; gap: 12px;
-            margin-top: 40px; padding: 14px 28px;
-            border: 1px solid rgba(212,96,122,0.4);
-            color: var(--pink-light); text-decoration: none;
-            font-size: 0.7rem; letter-spacing: 0.25em; text-transform: uppercase;
-            transition: all 0.3s; position: relative; overflow: hidden;
+            margin-top: 42px; padding: 15px 30px;
+            border: 1px solid rgba(224,86,122,.4);
+            color: #ffe4e9; text-decoration: none;
+            font-size: 0.68rem; letter-spacing: 0.26em; text-transform: uppercase;
+            transition: all 0.35s; position: relative; overflow: hidden;
+            text-shadow: 0 0 8px rgba(224,86,122,.5);
         }
         .about-cta::before {
-            content: ''; position: absolute; inset: 0; background: var(--pink);
-            transform: scaleX(0); transform-origin: left; transition: transform 0.35s ease;
+            content: ''; position: absolute; inset: 0; background: linear-gradient(100deg, var(--rose-deep), var(--rose));
+            transform: scaleX(0); transform-origin: left; transition: transform 0.4s ease;
         }
-        .about-cta:hover { color: var(--paper); border-color: var(--pink); }
+        .about-cta:hover { color: #fff; border-color: var(--rose); }
         .about-cta:hover::before { transform: scaleX(1); }
         .about-cta span, .about-cta i { position: relative; z-index: 1; }
 
         /* FOOTER */
         footer {
-            position: relative; z-index: 1;
+            position: relative; z-index: 2;
             border-top: 1px solid var(--divider);
-            padding: 40px 48px;
+            padding: 42px 48px;
             display: flex; align-items: center; justify-content: space-between;
             flex-wrap: wrap; gap: 20px;
         }
-        .footer-logo { font-family: 'Cormorant Garamond', serif; font-size: 1rem; font-style: italic; color: var(--pink-light); letter-spacing: 0.12em; }
+        .footer-logo { font-family: 'Cormorant Garamond', serif; font-size: 1rem; font-style: italic; color: var(--rose-soft); letter-spacing: 0.12em; text-shadow: 0 0 10px rgba(224,86,122,.35); }
         .footer-links { display: flex; gap: 28px; }
         .footer-links a { display: flex; align-items: center; gap: 8px; color: var(--paper); opacity: 0.35; text-decoration: none; font-size: 0.7rem; letter-spacing: 0.15em; transition: opacity 0.3s; }
         .footer-links a:hover { opacity: 0.9; }
@@ -342,32 +411,35 @@
         }
         .loader-glow-1 {
             width: 500px; height: 500px;
-            background: radial-gradient(circle, rgba(212,96,122,0.18) 0%, transparent 65%);
+            background: radial-gradient(circle, rgba(224,86,122,0.18) 0%, transparent 65%);
             top: -150px; right: -100px;
             animation: drift1 10s ease-in-out infinite;
         }
         .loader-glow-2 {
             width: 400px; height: 400px;
-            background: radial-gradient(circle, rgba(212,96,122,0.12) 0%, transparent 65%);
+            background: radial-gradient(circle, rgba(224,86,122,0.12) 0%, transparent 65%);
             bottom: -100px; left: -80px;
             animation: drift2 14s ease-in-out infinite;
         }
         .loader-vline {
             position: absolute; width: 1px; top: 0; bottom: 0;
             background: linear-gradient(to bottom,
-                transparent 0%, rgba(212,96,122,0.2) 40%,
-                rgba(212,96,122,0.2) 60%, transparent 100%);
+                transparent 0%, rgba(224,86,122,0.2) 40%,
+                rgba(224,86,122,0.2) 60%, transparent 100%);
             left: 50%; transform: translateX(-50%);
         }
         .loader-content {
             position: relative; z-index: 1;
             display: flex; flex-direction: column;
             align-items: center;
+            transition: opacity .3s ease;
         }
+        /* ヒーロー側のタイトルと同じ位置に重なっているため、背景より先に消して二重表示を防ぐ */
+        #loader.hidden .loader-content { opacity: 0; }
         .loader-eyebrow {
             font-family: 'Cormorant Garamond', serif;
             font-size: 0.62rem; letter-spacing: 0.5em;
-            text-transform: uppercase; color: var(--pink);
+            text-transform: uppercase; color: var(--rose);
             opacity: 0;
             animation: loaderFadeUp 0.8s 0.2s forwards;
         }
@@ -376,7 +448,7 @@
             font-size: clamp(2.8rem, 7vw, 5.5rem);
             font-weight: 900; line-height: 1;
             letter-spacing: 0.06em;
-            background: linear-gradient(135deg, var(--paper) 35%, var(--pink-pale) 100%);
+            background: linear-gradient(168deg, #fffaf7 0%, var(--core) 42%, #f6c9d4 78%, #e6a9b9 100%);
             -webkit-background-clip: text; -webkit-text-fill-color: transparent;
             background-clip: text;
             margin: 20px 0 16px;
@@ -401,44 +473,260 @@
         }
         .loader-bar-fill {
             position: absolute; top: 0; left: 0; height: 100%;
-            background: linear-gradient(to right, var(--pink), var(--pink-light));
+            background: linear-gradient(to right, var(--rose), var(--rose-soft));
             width: 0%;
-            box-shadow: 0 0 10px rgba(212,96,122,0.8);
+            box-shadow: 0 0 10px rgba(224,86,122,0.8);
         }
         .loader-bar-pct {
             margin-top: 12px;
             font-family: 'Cormorant Garamond', serif;
             font-size: 0.62rem; letter-spacing: 0.35em;
-            color: var(--pink); opacity: 0.55;
+            color: var(--rose); opacity: 0.55;
             text-align: right;
         }
         .loader-diamond {
             width: 5px; height: 5px;
-            background: var(--pink);
+            background: var(--rose);
             transform: rotate(45deg);
             margin: 24px auto 0;
             opacity: 0;
-            box-shadow: 0 0 12px var(--pink);
+            box-shadow: 0 0 12px var(--rose);
             animation: loaderFadeUp 0.5s 0.7s forwards,
                        loaderPulse 2s 1.5s ease-in-out infinite;
         }
-        .loader-curtain {
-            position: absolute; bottom: 0; left: 0; right: 0;
-            height: 0%;
-            background: var(--ink);
-            transition: height 0.65s cubic-bezier(0.77,0,0.175,1);
-        }
-        #loader.dismissing .loader-curtain { height: 100%; }
-
         @keyframes loaderFadeUp {
             from { opacity: 0; transform: translateY(14px); }
             to   { opacity: 1; transform: translateY(0); }
         }
         @keyframes loaderPulse {
-            0%,100% { opacity:0.5; box-shadow: 0 0 8px var(--pink); }
-            50%     { opacity:1;   box-shadow: 0 0 22px var(--pink), 0 0 44px rgba(212,96,122,0.25); }
+            0%,100% { opacity:0.5; box-shadow: 0 0 8px var(--rose); }
+            50%     { opacity:1;   box-shadow: 0 0 22px var(--rose), 0 0 44px rgba(224,86,122,0.25); }
         }
 
+        /* ══════════ 部屋が切り替わる遷移（カードクリック） ══════════ */
+        #transit {
+            position: fixed; inset: 0; z-index: 8000; pointer-events: none;
+            background: var(--ink); opacity: 0; transition: opacity .42s ease;
+        }
+        #transit.dark { opacity: 1; pointer-events: auto; }
+        #transit .rm {
+            position: absolute; inset: 0; display: flex; align-items: center; justify-content: center;
+            font-family: 'Zen Old Mincho', serif; font-size: clamp(1.6rem, 3.4vw, 2.6rem);
+            letter-spacing: .3em; opacity: 0;
+        }
+        #transit.room .rm { opacity: 1; }
+        #transit .rm span {
+            display: inline-block; opacity: .1;
+            background: linear-gradient(168deg, #fffaf7, var(--core) 45%, #f6c9d4);
+            -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent;
+            transition: opacity .09s, filter .09s;
+        }
+        #transit .rm span.on {
+            opacity: 1;
+            filter: drop-shadow(0 0 1px rgba(255,238,241,.9)) drop-shadow(0 0 10px rgba(224,86,122,.6))
+                    drop-shadow(0 0 30px rgba(224,86,122,.3));
+        }
+        body.dimmed .hero-title-glow .ch, body.dimmed .cast-card, body.dimmed .section-label {
+            filter: brightness(.15) saturate(.2) !important; transition: filter .38s;
+        }
+
+        /* ══════════ 隠しコマンドA：ロゴ3秒長押し → 閉店後 ══════════ */
+        body.afterhours { --rose: #8f6f86; --rose-soft: #a98ba0; }
+        body.afterhours .hero-title-glow { animation: none; }
+        body.afterhours .hero-title-glow .ch {
+            opacity: .17 !important;
+            filter: drop-shadow(0 0 1px rgba(150,140,170,.5)) drop-shadow(0 0 4px rgba(90,70,100,.4)) !important;
+        }
+        /* 管が割れて欠けている：「合」は完全に死に、「藍」は弱く生き残る */
+        body.afterhours .hero-title-glow .ch:nth-child(2) { opacity: .05 !important; filter: none !important; }
+        body.afterhours .hero-title-glow .ch:nth-child(4) { opacity: .1 !important; filter: drop-shadow(0 0 2px rgba(140,130,160,.4)) !important; }
+        /* 下の管も途中で切れている */
+        body.afterhours .neon-tube {
+            opacity: .18; box-shadow: none;
+            background: linear-gradient(90deg,
+                rgba(200,195,215,.3) 0%, rgba(200,195,215,.3) 26%, transparent 27%, transparent 41%,
+                rgba(200,195,215,.16) 42%, rgba(200,195,215,.16) 63%, transparent 64%, transparent 100%);
+        }
+        body.afterhours .hero-eyebrow, body.afterhours .section-label { color: rgba(190,185,205,.4); text-shadow: none; }
+        body.afterhours .section-label::before { background: rgba(190,185,205,.35); box-shadow: none; }
+        body.afterhours .section-label::after  { background: linear-gradient(to right, rgba(190,185,205,.3), transparent); }
+        body.afterhours .nav-logo { color: rgba(190,185,205,.45); text-shadow: none; }
+        body.afterhours .footer-logo {
+            color: #eb8ba3 !important;
+            text-shadow: 0 0 8px rgba(224,86,122,.55), 0 0 24px rgba(224,86,122,.25) !important;
+            animation: lastLight 5.5s ease-in-out infinite;
+        }
+        @keyframes lastLight {
+            0%,100% { opacity: .55; text-shadow: 0 0 6px rgba(224,86,122,.4); }
+            50%     { opacity: 1;   text-shadow: 0 0 10px rgba(224,86,122,.7), 0 0 28px rgba(224,86,122,.3); }
+        }
+        body.afterhours .detail-icon { color: rgba(190,185,205,.4); text-shadow: none; }
+        body.afterhours .cast-card { filter: grayscale(.72) brightness(.42); border-color: rgba(190,185,205,.09); transition: filter 2.6s ease, border-color 2.6s ease, box-shadow 2.6s ease; }
+        body.afterhours .cast-card:hover {
+            filter: grayscale(0) brightness(.98);
+            border-color: rgba(224,86,122,.5); box-shadow: 0 0 42px rgba(224,86,122,.28);
+            transition: filter .9s ease, border-color .9s ease, box-shadow .9s ease;
+        }
+        body.afterhours .cast-card-name { transition: color 2.6s, text-shadow 2.6s; }
+        body.afterhours .cast-card:hover .cast-card-name { color: #ffeef1; text-shadow: 0 0 12px rgba(224,86,122,.7), 0 2px 12px rgba(0,0,0,.6); transition: color .9s, text-shadow .9s; }
+        body.afterhours .cast-card:hover .cast-card-role { color: var(--rose-soft); transition: color .9s; }
+        body.afterhours .cast-card-role { color: rgba(190,185,205,.35); }
+        body.afterhours .about-cta { border-color: rgba(190,185,205,.2); color: rgba(190,185,205,.5); text-shadow: none; box-shadow: none; pointer-events: none; }
+        body.afterhours .ambient-1 { background: radial-gradient(circle, rgba(90,100,150,.09) 0%, transparent 66%); }
+        body.afterhours .ambient-2 { background: radial-gradient(circle, rgba(70,80,120,.08) 0%, transparent 66%); }
+        body.afterhours .ambient-3 { background: radial-gradient(circle, rgba(120,90,130,.06) 0%, transparent 66%); }
+        body.afterhours #cursorGlow { opacity: 0 !important; }
+        body.afterhours .wet-floor { opacity: .25; background: linear-gradient(to top, rgba(120,130,170,.1) 0%, transparent 70%); }
+        body.afterhours .hero-scroll { opacity: 0; transition: opacity .6s; }
+        body.afterhours main, body.afterhours header, body.afterhours footer { filter: saturate(.62) contrast(.94); }
+
+        .zone-out { transition: filter 1.1s ease, opacity 1.1s ease; }
+
+        #emergency {
+            position: fixed; inset: 0; z-index: 1; pointer-events: none; opacity: 0; transition: opacity 1.2s;
+            background: radial-gradient(circle at 82% 14%, rgba(150,170,220,.09), transparent 34%);
+        }
+        body.afterhours #emergency { opacity: 1; animation: emFlick 9s infinite; }
+        @keyframes emFlick {
+            0%,52%,100% { opacity: 1; } 53% { opacity: .15; } 54% { opacity: 1; }
+            69% { opacity: .3; } 70% { opacity: 1; } 70.6% { opacity: .1; } 71.4% { opacity: 1; }
+        }
+
+        #decay { position: fixed; inset: 0; z-index: 2; pointer-events: none; opacity: 0; transition: opacity 1.6s; }
+        body.afterhours #decay { opacity: 1; }
+        #decay .stain { position: absolute; border-radius: 50%; filter: blur(38px); }
+        #decay .dust {
+            position: absolute; width: 2px; height: 2px; border-radius: 50%;
+            background: rgba(226,226,240,.75); box-shadow: 0 0 4px rgba(200,210,240,.55);
+        }
+        @keyframes dustDrift {
+            0% { transform: translate(0,20px); opacity: 0; }
+            14% { opacity: .85; }
+            86% { opacity: .5; }
+            100% { transform: translate(var(--dx,14px), -190px); opacity: 0; }
+        }
+        .vig-decay {
+            position: fixed; inset: 0; z-index: 3; pointer-events: none; opacity: 0; transition: opacity 1.4s;
+            box-shadow: inset 0 0 200px 60px rgba(0,0,0,.82);
+        }
+        body.afterhours .vig-decay { opacity: 1; }
+
+        /* 記憶のフラッシュバック：一瞬だけ営業中の光が戻り、ゆっくり褪せる */
+        body.afterhours.flashback { --rose: #e0567a; --rose-soft: #eb8ba3; }
+        body.afterhours.flashback .hero-title-glow .ch {
+            opacity: 1 !important;
+            filter: drop-shadow(0 0 1px rgba(255,238,241,.9)) drop-shadow(0 0 9px rgba(224,86,122,.5))
+                    drop-shadow(0 0 30px rgba(224,86,122,.26)) drop-shadow(0 0 74px rgba(142,47,71,.22)) !important;
+        }
+        body.afterhours.flashback .neon-tube {
+            background: linear-gradient(90deg, transparent, var(--core) 12%, var(--core) 88%, transparent);
+            box-shadow: 0 0 3px rgba(224,86,122,.9), 0 0 11px rgba(224,86,122,.45), 0 0 30px rgba(224,86,122,.16);
+        }
+        body.afterhours.flashback .cast-card { filter: grayscale(0) brightness(1); }
+        body.afterhours.flashback main, body.afterhours.flashback header, body.afterhours.flashback footer { filter: none; }
+        body.afterhours.flashback .hero-eyebrow, body.afterhours.flashback .section-label { color: #eb8ba3; }
+        body.afterhours.flashback #emergency { opacity: 0; }
+        body.afterhours.flashback .vig-decay { opacity: .3; }
+        body.afterhours .hero-title-glow .ch, body.afterhours .neon-tube,
+        body.afterhours main, body.afterhours header, body.afterhours footer,
+        body.afterhours .hero-eyebrow, body.afterhours .section-label, body.afterhours #emergency {
+            transition: filter 1.6s ease, opacity 1.6s ease, color 1.6s ease, box-shadow 1.6s ease, background 1.6s ease;
+        }
+        body.afterhours.flashback .hero-title-glow .ch, body.afterhours.flashback .neon-tube,
+        body.afterhours.flashback main, body.afterhours.flashback header, body.afterhours.flashback footer,
+        body.afterhours.flashback .hero-eyebrow, body.afterhours.flashback .section-label,
+        body.afterhours.flashback #emergency { transition: none; }
+
+        /* 置き去りにされた気配：数枚だけ傾いている */
+        body.afterhours .cast-card-link:nth-child(3) .cast-card { transform: rotate(-.9deg) translateY(4px); }
+        body.afterhours .cast-card-link:nth-child(7) .cast-card { transform: rotate(1.1deg) translateY(6px); }
+        body.afterhours .cast-card-link:nth-child(10) .cast-card { transform: rotate(-.6deg) translateY(3px); }
+
+        /* ══════════ 隠しコマンドB：コナミコマンド → オーバードライブ ══════════ */
+        #odScan {
+            position: fixed; left: 0; right: 0; height: 180px; z-index: 7000; pointer-events: none; opacity: 0;
+            background: linear-gradient(to bottom, transparent, rgba(255,238,241,.16) 45%, rgba(224,86,122,.22) 52%, transparent);
+            mix-blend-mode: screen;
+        }
+        #odFlash { position: fixed; inset: 0; z-index: 7100; pointer-events: none; opacity: 0; background: #fff; }
+        .spark {
+            position: fixed; z-index: 7050; pointer-events: none; border-radius: 50%;
+            background: radial-gradient(circle at 40% 40%, #fff, rgba(255,214,228,.85) 45%, transparent 72%);
+            box-shadow: 0 0 8px rgba(224,86,122,.9);
+        }
+        body.od .hero-title-glow { animation: odHue 1.1s linear infinite; }
+        @keyframes odHue {
+            0%{filter:hue-rotate(0deg) brightness(1.5)}
+            50%{filter:hue-rotate(190deg) brightness(2.1)}
+            100%{filter:hue-rotate(360deg) brightness(1.5)}
+        }
+        body.od .hero-title-glow .ch {
+            opacity: 1 !important;
+            filter: drop-shadow(0 0 2px #fff) drop-shadow(0 0 16px rgba(255,80,150,.95))
+                    drop-shadow(0 0 46px rgba(255,80,150,.7)) drop-shadow(0 0 110px rgba(255,80,150,.45)) !important;
+        }
+        body.od .neon-tube { box-shadow: 0 0 6px #fff, 0 0 20px var(--rose), 0 0 60px rgba(224,86,122,.7); }
+        body.od .section-label, body.od .nav-logo, body.od .footer-logo, body.od .detail-icon {
+            color: #fff; text-shadow: 0 0 8px #fff, 0 0 24px rgba(255,80,150,.9);
+        }
+        body.od .cast-card { border-color: rgba(255,120,170,.75); box-shadow: 0 0 34px rgba(255,80,150,.45); }
+        body.od-black .hero-title-glow .ch, body.od-black .cast-card, body.od-black .section-label,
+        body.od-black .neon-tube, body.od-black .nav-logo { filter: brightness(.06) !important; }
+        .cast-card-link.pop .cast-card { animation: popCard .62s cubic-bezier(.2,1.4,.35,1); }
+        @keyframes popCard {
+            0% { transform: scale(1) rotate(0); }
+            30% { transform: scale(1.075) rotate(-1.4deg); box-shadow: 0 0 60px rgba(255,80,150,.75); }
+            60% { transform: scale(1.02) rotate(.8deg); }
+            100% { transform: scale(1) rotate(0); }
+        }
+
+        #beams { position: fixed; inset: 0; z-index: 2; pointer-events: none; opacity: 0; transition: opacity .8s; mix-blend-mode: screen; overflow: hidden; }
+        body.od-live #beams { opacity: 1; }
+        #beams i { position: absolute; top: -30%; left: 50%; width: 150px; height: 150vh; display: block; transform-origin: top center; filter: blur(22px); }
+        #beams i:nth-child(1) { background: linear-gradient(to bottom, rgba(255,90,160,.34), transparent 72%); animation: beamA 6.5s ease-in-out infinite alternate; }
+        #beams i:nth-child(2) { background: linear-gradient(to bottom, rgba(120,200,255,.24), transparent 72%); animation: beamB 8.5s ease-in-out infinite alternate; }
+        #beams i:nth-child(3) { background: linear-gradient(to bottom, rgba(255,210,120,.2), transparent 70%); animation: beamC 5.2s ease-in-out infinite alternate; }
+        @keyframes beamA { from{transform:rotate(-42deg)} to{transform:rotate(30deg)} }
+        @keyframes beamB { from{transform:rotate(38deg)} to{transform:rotate(-34deg)} }
+        @keyframes beamC { from{transform:rotate(-14deg)} to{transform:rotate(18deg)} }
+
+        /* 揺れは中身にだけ。body に transform を掛けると fixed 要素の基準が壊れる */
+        body.od-live header, body.od-live main, body.od-live footer { animation: odShake .42s infinite; }
+        /* グリッチの歪みは --glitch 変数として同じ transform に混ぜ込む（別途 transform を宣言すると
+           常時実行中の odShake アニメーションに上書きされて描画されないため） */
+        @keyframes odShake {
+            0%{transform:translate(0,0) skewX(0deg)}
+            20%{transform:translate(-1.4px,.8px) skewX(calc(var(--glitch,0) * 1.4deg))}
+            40%{transform:translate(1.2px,-1.1px) skewX(calc(var(--glitch,0) * -1.1deg))}
+            60%{transform:translate(-.9px,-.6px) skewX(calc(var(--glitch,0) * 1.4deg))}
+            80%{transform:translate(1.1px,1.2px) skewX(calc(var(--glitch,0) * -1.1deg))}
+            100%{transform:translate(0,0) skewX(0deg)}
+        }
+        body.od-live .ambient-1 { background: radial-gradient(circle, rgba(255,80,150,.34) 0%, transparent 66%); }
+        body.od-live .ambient-2 { background: radial-gradient(circle, rgba(120,200,255,.26) 0%, transparent 66%); }
+        body.od-live .ambient-3 { background: radial-gradient(circle, rgba(255,210,120,.24) 0%, transparent 66%); }
+        body.od-live .wet-floor { opacity: 1; filter: blur(30px); background: linear-gradient(to top, rgba(255,80,150,.4) 0%, rgba(120,200,255,.14) 46%, transparent 80%); }
+        body.od-live .cast-card { animation: odPulse 1.5s ease-in-out infinite; }
+        @keyframes odPulse {
+            0%,100% { box-shadow: 0 0 24px rgba(255,80,150,.4); border-color: rgba(255,120,170,.6); }
+            50%     { box-shadow: 0 0 62px rgba(255,80,150,.85); border-color: rgba(255,190,215,.95); }
+        }
+        body.od-live .cast-card-link:nth-child(2n) .cast-card { animation-delay: .25s; }
+        body.od-live .cast-card-link:nth-child(3n) .cast-card { animation-delay: .5s; }
+        body.od-live .cast-card-name { text-shadow: 2px 0 rgba(255,0,80,.85), -2px 0 rgba(0,220,255,.8), 0 0 18px rgba(255,255,255,.5); }
+        body.od-live .hero-subtitle { opacity: .9; text-shadow: 2px 0 rgba(255,0,80,.7), -2px 0 rgba(0,220,255,.65); }
+        body.od-glitch { --glitch: 1; }
+        body.od-glitch main, body.od-glitch header { filter: hue-rotate(60deg); }
+        body.od-glitch .hero-title-glow .ch {
+            filter: drop-shadow(3px 0 rgba(255,0,80,.95)) drop-shadow(-3px 0 rgba(0,220,255,.9))
+                    drop-shadow(0 0 30px rgba(255,80,150,.9)) !important;
+        }
+        #odScan.live { opacity: 1; animation: scanRun 1.9s linear infinite; }
+        @keyframes scanRun { from{transform:translateY(-200px)} to{transform:translateY(110vh)} }
+
+        @media (prefers-reduced-motion: reduce) {
+            .ambient, .hero-scroll i, .open-dot, .hero-title-glow { animation: none !important; }
+        }
     </style>
 </head>
 <body>
@@ -460,28 +748,39 @@
                 <div class="loader-bar-pct" id="loaderPct">0%</div>
             </div>
         </div>
-        <div class="loader-curtain" id="loaderCurtain"></div>
     </div>
 
+    <div id="transit"><div class="rm"></div></div>
+    <div id="emergency"></div>
+    <div id="decay"></div>
+    <div class="vig-decay"></div>
+    <div id="beams"><i></i><i></i><i></i></div>
+    <div id="odScan"></div>
+    <div id="odFlash"></div>
 
+    <div id="cursorGlow"></div>
     <div class="ambient ambient-1"></div>
     <div class="ambient ambient-2"></div>
     <div class="ambient ambient-3"></div>
 
     <nav>
-        <a href="#" class="nav-logo">待合室 藍愛</a>
-        <a href="https://x.com/VRC_Aiai" target="_blank" rel="noopener noreferrer" class="nav-x">
-            <i class="fab fa-x-twitter"></i>
-            <span>公式X</span>
-        </a>
+        <a href="#" class="nav-logo" id="navLogo">待合室 藍愛</a>
+        <div class="nav-right">
+            <a href="https://x.com/VRC_Aiai" target="_blank" rel="noopener noreferrer" class="nav-x">
+                <i class="fab fa-x-twitter"></i>
+                <span>公式X</span>
+            </a>
+        </div>
     </nav>
 
     <header class="hero">
+        <div class="wet-floor"></div>
         <p class="hero-eyebrow"><span></span>VRChat Concept Event<span></span></p>
         <h1 class="hero-title">
-            <span class="hero-title-glow">待合室藍愛</span>
+            <span class="hero-title-glow" id="heroTitle">待合室藍愛</span>
         </h1>
         <p class="hero-subtitle">君と私の交わることのない一夜の物語</p>
+        <div class="tube-wrap"><div class="neon-tube" id="neonTube"></div></div>
         <div class="hero-scroll">
             <span>Scroll</span>
             <i class="fas fa-chevron-down"></i>
@@ -492,8 +791,8 @@
 
         <section class="details-section">
             <div class="section-inner">
-                <div class="section-label">Event Details</div>
-                <div class="details-grid">
+                <div class="section-label seq">Event Details</div>
+                <div class="details-grid seq">
                     <div class="detail-item">
                         <div class="detail-icon"><i class="fas fa-calendar-alt"></i></div>
                         <div class="detail-key">開催日時</div>
@@ -525,7 +824,7 @@
 
         <section class="cast-section">
             <div class="section-inner">
-                <div class="section-label">Cast</div>
+                <div class="section-label seq">Cast</div>
                 <div class="cast-grid">
 
                     <a href="cast/chinatsu.html" class="cast-card-link">
@@ -655,8 +954,8 @@
 
         <section class="about-section">
             <div class="section-inner">
-                <div class="section-label">About</div>
-                <div class="about-layout">
+                <div class="section-label seq">About</div>
+                <div class="about-layout seq">
                     <div>
                         <div class="about-deco-title">Aiai</div>
                     </div>
@@ -700,6 +999,7 @@
         if (sessionStorage.getItem(SEEN_KEY)) {
             loader.style.display = 'none';
             document.body.style.overflow = '';
+            document.dispatchEvent(new Event('aiai:heroReveal'));
             return;
         }
 
@@ -732,11 +1032,12 @@
             bar.style.width = '100%';
             pct.textContent = '100%';
             setTimeout(() => {
-                loader.classList.add('dismissing');
-                setTimeout(() => {
-                    loader.classList.add('hidden');
-                    document.body.style.overflow = '';
-                }, 700);
+                loader.classList.add('hidden');
+                document.body.style.overflow = '';
+                // ローダー自身のタイトル文字とヒーロー側の文字が同じ位置に重なっているため、
+                // フェード中（opacity 0.9s、#loader の transition と同じ長さ）に点灯を始めると
+                // 二重に文字が透けて見えてしまう。フェードが完全に終わってから点灯させる
+                setTimeout(() => document.dispatchEvent(new Event('aiai:heroReveal')), 900);
             }, 350);
         }
 
@@ -746,6 +1047,340 @@
 
         // 読み込み中はスクロール禁止
         document.body.style.overflow = 'hidden';
+    })();
+    </script>
+
+    <script>
+    (function() {
+        const wait = (ms) => new Promise(r => setTimeout(r, ms));
+        const rand = (a, b) => a + Math.random() * (b - a);
+        const reducedMotion = matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+        /* ══════════ カーソル追従グロー ══════════ */
+        const glow = document.getElementById('cursorGlow');
+        let gx = innerWidth / 2, gy = innerHeight / 2, cx = gx, cy = gy;
+        addEventListener('mousemove', e => { gx = e.clientX; gy = e.clientY; });
+        (function loop() {
+            cx += (gx - cx) * .11; cy += (gy - cy) * .11;
+            glow.style.left = cx + 'px'; glow.style.top = cy + 'px';
+            requestAnimationFrame(loop);
+        })();
+
+        /* ══════════ タイトルのネオン明滅（点灯 → 稀にちらつく） ══════════ */
+        const titleEl = document.getElementById('heroTitle');
+        const tubeEl  = document.getElementById('neonTube');
+        titleEl.innerHTML = [...titleEl.textContent].map(c => `<span class="ch"><i>${c}</i></span>`).join('');
+        const CH = [...titleEl.querySelectorAll('.ch')];
+
+        function setGlow(els, cls) {
+            CH.forEach(c => c.classList.remove('half', 'off'));
+            if (cls) els.forEach(e => e.classList.add(cls));
+            tubeEl.classList.toggle('dip', cls === 'off' && els.length === CH.length);
+        }
+
+        /* ローダーが消え始めるまで消灯状態を維持し、点灯演出をその瞬間に重ねる */
+        setGlow(CH, 'off');
+        function waitForReveal() {
+            const loaderEl = document.getElementById('loader');
+            if (!loaderEl || loaderEl.style.display === 'none' || loaderEl.classList.contains('hidden')) {
+                return Promise.resolve();
+            }
+            return new Promise(resolve => document.addEventListener('aiai:heroReveal', resolve, { once: true }));
+        }
+
+        /* 点灯シーケンス：一度つきかけて落ち、二度目で安定する */
+        async function ignite() {
+            setGlow(CH, 'off');  await wait(260);
+            setGlow(CH, 'half'); await wait(90);
+            setGlow(CH, 'off');  await wait(130);
+            setGlow(CH, null);   await wait(70);
+            setGlow(CH, 'off');  await wait(60);
+            setGlow(CH, 'half'); await wait(50);
+            setGlow(CH, null);
+        }
+
+        /* 稀に落ちる：一文字だけ／全体のごく短いディップ */
+        async function blip() {
+            if (Math.random() < .45) {
+                const c = [CH[Math.floor(Math.random() * CH.length)]];
+                setGlow(c, 'off'); await wait(rand(55, 110));
+                setGlow([], null);
+                if (Math.random() < .5) {
+                    await wait(rand(70, 140));
+                    setGlow(c, 'half'); await wait(rand(40, 80));
+                    setGlow([], null);
+                }
+            } else {
+                setGlow(CH, 'half'); await wait(rand(35, 60));
+                setGlow([], null);   await wait(rand(45, 80));
+                setGlow(CH, 'off');  await wait(rand(30, 55));
+                setGlow([], null);
+            }
+        }
+
+        (async function flickerLoop() {
+            await waitForReveal();
+            await ignite();
+            if (reducedMotion) return;
+            while (true) {
+                if (document.body.classList.contains('afterhours') || document.body.classList.contains('od')) {
+                    await wait(1500); continue;
+                }
+                await wait(rand(2600, 6500));
+                if (document.body.classList.contains('afterhours') || document.body.classList.contains('od')) continue;
+                await blip();
+            }
+        })();
+
+        /* ══════════ セクション見出し・グリッドがスクロールで灯る ══════════ */
+        const seqIO = new IntersectionObserver(es => {
+            es.forEach(en => { if (en.isIntersecting) { en.target.classList.add('lit'); seqIO.unobserve(en.target); } });
+        }, { threshold: .18 });
+        document.querySelectorAll('.seq').forEach(el => seqIO.observe(el));
+
+        /* ══════════ キャストカードが1枚ずつ灯る ══════════ */
+        let seqN = 0, seqT = 0;
+        const castIO = new IntersectionObserver(es => {
+            es.forEach(en => {
+                if (!en.isIntersecting) return;
+                const now = performance.now();
+                if (now - seqT > 500) seqN = 0;
+                seqT = now;
+                en.target.style.animationDelay = (seqN++ * 95) + 'ms';
+                en.target.classList.add('lit');
+                castIO.unobserve(en.target);
+            });
+        }, { threshold: .2 });
+        document.querySelectorAll('.cast-card-link').forEach(el => castIO.observe(el));
+
+        /* ══════════ 部屋が切り替わる遷移：カードクリック → 暗転 → 次の部屋の名前が灯る → 移動 ══════════ */
+        const transit = document.getElementById('transit');
+        const rmBox = transit.querySelector('.rm');
+        const TRANSIT_KEY = 'aiaiTransit';
+        let navigating = false;
+
+        async function playTransit(label, href) {
+            document.body.classList.add('dimmed');
+            await wait(340);
+            transit.classList.add('dark');
+            await wait(460);
+            rmBox.innerHTML = [...label].map(c => `<span>${c}</span>`).join('');
+            const S = [...rmBox.querySelectorAll('span')];
+            transit.classList.add('room');
+            for (const s of S) {
+                s.classList.add('on');    await wait(rand(45, 80));
+                s.classList.remove('on'); await wait(rand(28, 50));
+                s.classList.add('on');    await wait(rand(120, 190));
+            }
+            await wait(650);
+            try { sessionStorage.setItem(TRANSIT_KEY, '1'); } catch (e) {}
+            location.href = href;
+        }
+
+        document.querySelectorAll('.cast-card-link').forEach(link => {
+            link.addEventListener('click', e => {
+                if (e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
+                if (navigating) { e.preventDefault(); return; }
+                e.preventDefault();
+                navigating = true;
+                const name = link.querySelector('.cast-card-name').textContent;
+                const href = link.getAttribute('href');
+                playTransit(name, href);
+            });
+        });
+
+        /* ══════════ 隠しコマンドA：ロゴ3秒長押し → 閉店後（消灯シーケンス） ══════════ */
+        const ZONES = ['.cast-section', '.details-section', '.about-section', 'footer'];
+        let afterBusy = false;
+        let fbTimer = 0;
+
+        function buildDecay() {
+            const d = document.getElementById('decay');
+            if (d.dataset.built) return;
+            d.dataset.built = '1';
+            const stains = [
+                [18, 12, 240, 'rgba(120,110,90,.10)'], [78, 26, 300, 'rgba(90,100,120,.09)'],
+                [42, 74, 380, 'rgba(110,95,80,.08)'],  [88, 68, 260, 'rgba(80,90,110,.10)'],
+                [8, 58, 200, 'rgba(100,90,80,.09)']
+            ];
+            stains.forEach(([x, y, s, c]) => {
+                const el = document.createElement('div');
+                el.className = 'stain';
+                el.style.cssText = `left:${x}%;top:${y}%;width:${s}px;height:${s * .72}px;background:radial-gradient(ellipse,${c},transparent 68%)`;
+                d.appendChild(el);
+            });
+            for (let i = 0; i < 26; i++) {
+                const el = document.createElement('div');
+                el.className = 'dust';
+                el.style.cssText = `left:${Math.random() * 100}%;top:${40 + Math.random() * 60}%;--dx:${(Math.random() - .5) * 60}px;opacity:${(.25 + Math.random() * .5).toFixed(2)};animation:dustDrift ${(11 + Math.random() * 13).toFixed(1)}s linear ${(-Math.random() * 20).toFixed(1)}s infinite`;
+                d.appendChild(el);
+            }
+        }
+
+        function startFlashbacks() {
+            if (fbTimer) return;
+            const tick = () => {
+                fbTimer = setTimeout(async () => {
+                    if (document.body.classList.contains('afterhours')) {
+                        document.body.classList.add('flashback');
+                        await wait(150 + Math.random() * 160);
+                        document.body.classList.remove('flashback');
+                    }
+                    tick();
+                }, 14000 + Math.random() * 12000);
+            };
+            tick();
+        }
+
+        async function enterAfterhours() {
+            if (afterBusy || document.body.classList.contains('afterhours') || document.body.classList.contains('od')) return;
+            afterBusy = true;
+
+            /* 1. 奥の区画から順に照明が落ちる */
+            for (const s of ZONES) {
+                const el = document.querySelector(s);
+                if (!el) continue;
+                el.classList.add('zone-out');
+                el.style.filter = 'brightness(.18) saturate(.2)';
+                await wait(420);
+            }
+            await wait(260);
+
+            /* 2. 看板の管が一本ずつ死ぬ（合→藍→待→室→愛の順。最後まで残るのは「愛」） */
+            const order = [1, 3, 0, 2, 4];
+            for (const i of order) {
+                const c = CH[i]; if (!c) continue;
+                c.style.transition = 'opacity .12s, filter .12s';
+                c.style.opacity = '.55'; await wait(90);
+                c.style.opacity = '1';   await wait(70);
+                c.style.opacity = '.12'; c.style.filter = 'none';
+                await wait(i === 4 ? 700 : 300);
+            }
+            await wait(500);
+
+            /* 3. 非常灯がカチッと入る */
+            document.body.classList.add('afterhours');
+            buildDecay();
+            startFlashbacks();
+            const em = document.getElementById('emergency');
+            em.animate([{ opacity: 0 }, { opacity: 1 }, { opacity: .1 }, { opacity: 1 }], { duration: 520, easing: 'steps(1,end)' });
+            CH.forEach(c => { c.style.opacity = ''; c.style.filter = ''; c.style.transition = ''; });
+            ZONES.forEach(s => { const el = document.querySelector(s); if (el) { el.style.filter = ''; el.classList.remove('zone-out'); } });
+            afterBusy = false;
+        }
+
+        /* ══════════ 隠しコマンドB：コナミコマンド → オーバードライブ ══════════ */
+        const odScan = document.getElementById('odScan');
+        const odFlash = document.getElementById('odFlash');
+        let odBusy = false;
+
+        function spark() {
+            const s = document.createElement('div');
+            s.className = 'spark';
+            const size = 2 + Math.random() * 5;
+            s.style.width = s.style.height = size + 'px';
+            s.style.left = (Math.random() * innerWidth) + 'px';
+            s.style.top = (innerHeight * (.55 + Math.random() * .45)) + 'px';
+            document.body.appendChild(s);
+            s.animate(
+                [{ transform: 'translate(0,0) scale(1)', opacity: 1 },
+                 { transform: `translate(${(Math.random() - .5) * 220}px, ${-260 - Math.random() * 420}px) scale(.2)`, opacity: 0 }],
+                { duration: 1400 + Math.random() * 1200, easing: 'cubic-bezier(.2,.7,.3,1)', fill: 'forwards' }
+            ).onfinish = () => s.remove();
+        }
+
+        async function overdrive() {
+            if (odBusy || document.body.classList.contains('afterhours') || document.body.classList.contains('od')) return;
+            odBusy = true;
+            const cardLinks = [...document.querySelectorAll('.cast-card-link')];
+
+            /* 1. ジジッ…と一瞬すべてが落ちる */
+            document.body.classList.add('od-black'); await wait(90);
+            document.body.classList.remove('od-black'); await wait(60);
+            document.body.classList.add('od-black'); await wait(70);
+            document.body.classList.remove('od-black');
+
+            /* 2. 全ネオンが最大出力で一斉点灯＋フラッシュ */
+            document.body.classList.add('od');
+            odFlash.animate([{ opacity: .75 }, { opacity: 0 }], { duration: 420, easing: 'ease-out' });
+            await wait(240);
+
+            /* 3. サーチライトと走査線が動きだす */
+            document.body.classList.add('od-live');
+            odScan.classList.add('live');
+
+            /* 4. カードが波状に弾ける＋火花が噴き上がる */
+            cardLinks.forEach((l, i) => setTimeout(() => {
+                l.classList.add('pop');
+                setTimeout(() => l.classList.remove('pop'), 620);
+            }, i * 70));
+            const burst = setInterval(spark, 30);
+            await wait(1600);
+            clearInterval(burst);
+
+            /* 5. 以降は暴走したまま維持（再読み込みするまで戻らない） */
+            setInterval(spark, 130);
+
+            (function glitchLoop() {
+                setTimeout(() => {
+                    document.body.classList.add('od-glitch');
+                    setTimeout(() => document.body.classList.remove('od-glitch'), 60 + Math.random() * 90);
+                    glitchLoop();
+                }, 1600 + Math.random() * 1800);
+            })();
+
+            setInterval(async () => {
+                if (Math.random() > .55) return;
+                document.body.classList.add('od-black');
+                await wait(60 + Math.random() * 70);
+                document.body.classList.remove('od-black');
+                odFlash.animate([{ opacity: .5 }, { opacity: 0 }], { duration: 300, easing: 'ease-out' });
+            }, 3400);
+
+            setInterval(() => {
+                const l = cardLinks[Math.floor(Math.random() * cardLinks.length)];
+                if (!l) return;
+                l.classList.add('pop');
+                setTimeout(() => l.classList.remove('pop'), 620);
+            }, 700);
+        }
+
+        /* 発動A：コナミコマンド（PC・キーボード） */
+        const KONAMI = ['ArrowUp', 'ArrowUp', 'ArrowDown', 'ArrowDown', 'ArrowLeft', 'ArrowRight', 'ArrowLeft', 'ArrowRight', 'b', 'a'];
+        let kIdx = 0;
+        addEventListener('keydown', e => {
+            const k = e.key.length === 1 ? e.key.toLowerCase() : e.key;
+            kIdx = (k === KONAMI[kIdx]) ? kIdx + 1 : (k === KONAMI[0] ? 1 : 0);
+            if (kIdx === KONAMI.length) { kIdx = 0; overdrive(); }
+        });
+
+        /* 発動B：ロゴを5秒長押し（PC・スマホ両対応） */
+        const navLogo = document.getElementById('navLogo');
+        const HOLD = 5000;
+        let holdStart = 0, holdRAF = 0;
+
+        function holdTick() {
+            const p = Math.min(1, (performance.now() - holdStart) / HOLD);
+            if (p >= 1) { endHold(true); return; }
+            holdRAF = requestAnimationFrame(holdTick);
+        }
+        function startHold(e) {
+            e.preventDefault();
+            if (document.body.classList.contains('afterhours')) return;
+            holdStart = performance.now();
+            navLogo.classList.add('pressing');
+            holdRAF = requestAnimationFrame(holdTick);
+        }
+        function endHold(done) {
+            cancelAnimationFrame(holdRAF);
+            navLogo.classList.remove('pressing');
+            if (done) { enterAfterhours(); }
+        }
+        navLogo.addEventListener('pointerdown', startHold);
+        navLogo.addEventListener('pointerup', () => endHold(false));
+        navLogo.addEventListener('pointerleave', () => endHold(false));
+        navLogo.addEventListener('pointercancel', () => endHold(false));
+        navLogo.addEventListener('click', e => e.preventDefault());
     })();
     </script>
 

@@ -2,10 +2,20 @@
 <html lang="ja">
 <head>
     <meta charset="UTF-8">
+    <style>html,body{background:#09070d}</style>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>いぬ — 待合室藍愛</title>
     <link href="https://fonts.googleapis.com/css2?family=Shippori+Mincho:wght@400;500;600;700&family=Zen+Old+Mincho:wght@400;700;900&family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.4.0/css/all.min.css">
+    <style>
+        /* ── 待合室からの入場演出（index.html からの遷移でのみ表示） ── */
+        #arrivalVeil {
+            position: fixed; inset: 0; z-index: 99999; background: #09070d;
+            display: none; opacity: 1; transition: opacity .35s ease;
+        }
+        #arrivalVeil.show { display: block; }
+        #arrivalVeil.out { opacity: 0; }
+    </style>
     <style>
         :root {
             --ink: #0d0b0f;
@@ -169,6 +179,13 @@
         </style>
 </head>
 <body>
+    <div id="arrivalVeil"></div>
+    <script>
+    (function() {
+        /* 遷移フラグがある時だけ、パース直後の同期処理でヴェールを即表示（他の内容が一瞬見えるのを防ぐ） */
+        try { if (sessionStorage.getItem('aiaiTransit') === '1') document.getElementById('arrivalVeil').classList.add('show'); } catch (e) {}
+    })();
+    </script>
     <div class="ambient ambient-1"></div>
     <div class="ambient ambient-2"></div>
     <nav>
@@ -355,6 +372,30 @@
         document.getElementById('prevBtn').addEventListener('click', () => goTo(current - 1));
         dots.forEach(d => d.addEventListener('click', () => goTo(+d.dataset.index)));
         setInterval(() => goTo(current + 1), 5000);
+    </script>
+    <script>
+    (function() {
+        /* 名前は遷移元（待合室側）で既に灯っているため、ここでは繰り返さない。
+           短く黒を保ってからフェードし、二重に演出が起きている印象を避ける。 */
+        var KEY = 'aiaiTransit';
+        var flagged = false;
+        try { flagged = sessionStorage.getItem(KEY) === '1'; sessionStorage.removeItem(KEY); } catch (e) {}
+        if (!flagged) return;
+
+        var veil = document.getElementById('arrivalVeil');
+        if (!veil) return;
+
+        veil.classList.add('show');
+        document.body.style.overflow = 'hidden';
+
+        setTimeout(function() {
+            veil.classList.add('out');
+            setTimeout(function() {
+                veil.classList.remove('show', 'out');
+                document.body.style.overflow = '';
+            }, 350);
+        }, 160);
+    })();
     </script>
 </body>
 </html>
