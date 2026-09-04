@@ -38,6 +38,8 @@
         body::before {
             content: '';
             position: fixed; inset: 0; z-index: 0; pointer-events: none;
+            /* feTurbulence の再ラスタライズは重い。レイヤを固定して描き直しを避ける */
+            transform: translateZ(0);
             background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='300' height='300' filter='url(%23n)' opacity='0.035'/%3E%3C/svg%3E");
         }
 
@@ -402,7 +404,12 @@
             background: var(--ink);
             display: flex; align-items: center; justify-content: center;
             overflow: hidden;
-            transition: opacity .85s cubic-bezier(.77,0,.175,1), visibility .85s;
+            /* 途中でレイヤを作らせない。iOS Safari はアニメーション開始時に
+               全画面レイヤを新規作成すると、描画が乗る前の空のバッキング
+               ストア（白）を1フレーム見せることがある */
+            transform: translateZ(0);
+            -webkit-backface-visibility: hidden; backface-visibility: hidden;
+            will-change: opacity;
         }
         /* 暗転しきったあとの撤去。全画面レイヤのクロスフェードはモバイルで
            合成が乱れやすいので、真っ黒の状態から一息に消す */
@@ -415,7 +422,7 @@
             background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='300' height='300' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
         }
 
-        .ld-glow { position: absolute; border-radius: 50%; filter: blur(120px); pointer-events: none; }
+        .ld-glow { position: absolute; border-radius: 50%; filter: blur(120px); pointer-events: none; will-change: opacity; }
         .ld-glow-1 {
             width: 620px; height: 620px;
             background: radial-gradient(circle, rgba(224,86,122,0.16) 0%, transparent 66%);
@@ -441,7 +448,7 @@
         /* 濡れた路面の反射（ヒーローの .wet-floor と同じ） */
         .ld-floor {
             position: absolute; left: 0; right: 0; bottom: 0; height: 32vh; pointer-events: none;
-            filter: blur(42px); opacity: .7;
+            filter: blur(42px); opacity: .7; will-change: opacity;
             background: linear-gradient(to top, rgba(224,86,122,.13) 0%, rgba(201,168,106,.05) 44%, transparent 78%);
         }
 
@@ -578,7 +585,9 @@
 
         /* ── 灯が満ちたあとの暗転。看板だけが最後まで残って落ちる ── */
         /* 導入アニメ（ldFadeUp）が opacity を握っている要素は JS 側でフェードさせる */
-        #loader.dark { background: #000; transition: background-color 1.2s ease, opacity .8s cubic-bezier(.77,0,.175,1), visibility .8s; }
+        /* 全画面要素の background-color は遷移させない（レイヤ全体の再描画を招く）。
+           暗転は子の opacity だけで作り、地色は --ink のまま通す。
+           ホームの背景と同色なので、撤去の瞬間の入れ替わりも見えない */
         #loader.dark .ld-glow,
         #loader.dark .ld-vline,
         #loader.dark .ld-floor { opacity: 0; transition: opacity 1.1s ease; }
@@ -1136,11 +1145,16 @@
         let progress  = 0;
         let dismissed = false;
 
-        // 導入アニメが opacity を固定しているので、現在値で止めてから transition に渡す
-        function fade(el, dur, delay) {
-            el.style.animation = 'none';
-            el.style.opacity = getComputedStyle(el).opacity;
-            void el.offsetWidth;
+        // 導入アニメ（ldFadeUp）が opacity を握っているので、現在値で止めてから
+        // transition に渡す。強制レイアウトは全要素まとめて1回だけにする
+        function freeze(els) {
+            els.forEach(el => {
+                el.style.animation = 'none';
+                el.style.opacity = getComputedStyle(el).opacity;
+            });
+            void document.body.offsetWidth;
+        }
+        function fadeOut(el, dur, delay) {
             el.style.transition = 'opacity ' + dur + 'ms ' + delay + 'ms ease';
             el.style.opacity = '0';
         }
@@ -1201,11 +1215,15 @@
             await wait(reduced ? 220 : 620);
 
             // 暗転。管と数字が先に落ち、看板だけが最後まで残る
+            const eyebrow = document.querySelector('.ld-eyebrow');
+            const tubeEl  = document.querySelector('.ld-tube');
+            const metaEl  = document.querySelector('.ld-meta');
+            freeze([eyebrow, tubeEl, metaEl, logo]);
             loader.classList.add('dark');
-            fade(document.querySelector('.ld-eyebrow'), 800, 0);
-            fade(document.querySelector('.ld-tube'),    800, 0);
-            fade(document.querySelector('.ld-meta'),    800, 0);
-            fade(logo, reduced ? 300 : 1150, reduced ? 0 : 320);
+            fadeOut(eyebrow, 800, 0);
+            fadeOut(tubeEl,  800, 0);
+            fadeOut(metaEl,  800, 0);
+            fadeOut(logo, reduced ? 300 : 1150, reduced ? 0 : 320);
             await wait(reduced ? 320 : 1500);
 
             // スクロール解放が先。iOS はここでビューポートを組み直すことがあるが、
