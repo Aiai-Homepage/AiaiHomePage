@@ -741,6 +741,33 @@
         body.afterhours.flashback .hero-eyebrow, body.afterhours.flashback .section-label,
         body.afterhours.flashback #emergency { transition: none; }
 
+        /* 閉店のお礼：看板が死んだあとも、この一行だけが灯っている。
+           出現(fadeUp)は外側、明滅は内側。同じ要素だと fill された opacity に明滅が負ける */
+        .closing-neon {
+            margin-top: 46px; font-family: 'Zen Old Mincho', serif; font-size: clamp(1rem, 1.9vw, 1.3rem);
+            letter-spacing: .3em; padding-left: .3em; line-height: 2; animation: fadeUp 1s 1s both;
+        }
+        .closing-neon .cn-glow {
+            display: block;
+            filter: drop-shadow(0 0 1px rgba(255,238,241,.95)) drop-shadow(0 0 7px rgba(224,86,122,.85))
+                    drop-shadow(0 0 22px rgba(224,86,122,.5)) drop-shadow(0 0 48px rgba(224,86,122,.25));
+            transition: opacity .07s linear, filter .07s linear;
+        }
+        .closing-neon i {
+            display: inline-block; font-style: normal;
+            background: linear-gradient(168deg, #fffaf7 0%, #ffeef1 42%, #f6c9d4 78%, #e6a9b9 100%);
+            -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent;
+        }
+        .closing-neon .cn-glow.half {
+            opacity: .6;
+            filter: drop-shadow(0 0 1px rgba(255,238,241,.5)) drop-shadow(0 0 5px rgba(224,86,122,.28));
+        }
+        .closing-neon .cn-glow.off { opacity: .2; filter: drop-shadow(0 0 1px rgba(224,86,122,.35)); }
+        /* 営業中に戻ったら消える。場所は残して看板の位置がずれないようにする */
+        body:not(.afterhours) .closing-neon .cn-glow { opacity: 0; visibility: hidden; transition: opacity .6s, visibility 0s .6s; }
+        /* フラッシュバック（営業中の記憶）の一瞬だけは消えている */
+        body.afterhours.flashback .closing-neon .cn-glow { opacity: 0; transition: none; }
+
         /* 置き去りにされた気配：数枚だけ傾いている */
         body.afterhours .cast-card-link:nth-child(3) .cast-card { transform: rotate(-.9deg) translateY(4px); }
         body.afterhours .cast-card-link:nth-child(7) .cast-card { transform: rotate(1.1deg) translateY(6px); }
@@ -890,6 +917,7 @@
         </h1>
         <p class="hero-subtitle">君と私の交わることのない一夜の物語</p>
         <div class="tube-wrap"><div class="neon-tube" id="neonTube"></div></div>
+        <p class="closing-neon"><span class="cn-glow off" id="closingNeon"><i>沢山のご来店</i><i>ありがとうございました</i></span></p>
         <div class="hero-scroll">
             <span>Scroll</span>
             <i class="fas fa-chevron-down"></i>
@@ -1334,6 +1362,31 @@
             }
         }
 
+        /* 閉店のお礼の一行：大看板とは別の、まだ生きている小さな管 */
+        const closingEl = document.getElementById('closingNeon');
+        const setClosing = (cls) => { closingEl.classList.remove('half', 'off'); if (cls) closingEl.classList.add(cls); };
+
+        (async function closingLoop() {
+            await waitForReveal();
+            if (reducedMotion) { setClosing(null); return; }
+            /* 出現（fadeUp）が済んでから、つきかけて落ち、二度目で安定する */
+            await wait(1400);
+            setClosing('half'); await wait(90);
+            setClosing('off');  await wait(160);
+            setClosing(null);   await wait(70);
+            setClosing('off');  await wait(60);
+            setClosing('half'); await wait(50);
+            setClosing(null);
+            /* 古い管なので、ときどき電圧が落ちる */
+            while (document.body.classList.contains('afterhours')) {
+                await wait(rand(5000, 11000));
+                if (!document.body.classList.contains('afterhours') || openBusy) break;
+                setClosing('half'); await wait(rand(40, 80));
+                setClosing(null);
+                if (Math.random() < .4) { await wait(rand(60, 120)); setClosing('off'); await wait(rand(30, 60)); setClosing(null); }
+            }
+        })();
+
         (async function flickerLoop() {
             await waitForReveal();
             await ignite();
@@ -1479,7 +1532,11 @@
             setGlow(CH, 'off');
             const em = document.getElementById('emergency');
             em.animate([{ opacity: 1 }, { opacity: .1 }, { opacity: 1 }, { opacity: 0 }], { duration: 520, easing: 'steps(1,end)', fill: 'forwards' });
-            await wait(1200);
+            /* お礼の一行も役目を終えて落ちる（閉店後の解除で非表示になる） */
+            setClosing('half'); await wait(130);
+            setClosing(null);   await wait(90);
+            setClosing('off');
+            await wait(980);
             document.body.classList.remove('afterhours');
             await wait(700);
 
